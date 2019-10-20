@@ -46,7 +46,11 @@ impl From<DiagnosticRecord> for DbError {
             .unwrap()
             .to_str()
             .unwrap();
-        let kind = if state == "IM002" || state == "01000" || state == "IM004" {
+        let kind = if state == "IM002"  // no driver
+                    || state == "01000" // no driver at path
+                    || state == "IM004" // bad driver
+                    || state == "08001" // can't connect
+        {
             DbErrorLifetime::Permenant
         } else {
             DbErrorLifetime::Temporary
@@ -141,8 +145,8 @@ mod test {
     }
 
     #[test]
-    #[cfg_attr(sqlite_driver="", ignore)]
-    fn test_connect_with_good_driver() {
+    #[cfg_attr(sqlite_driver = "", ignore)]
+    fn test_sqlite_with_good_driver() {
         connect(Opts {
             connection_string: format!(
                 "Driver={};Database=test.db;",
@@ -151,5 +155,23 @@ mod test {
             sql_text: "SELECT 1 from sqlite_master".to_string(),
         })
         .unwrap();
+    }
+
+    #[test]
+    #[cfg_attr(postgres_driver = "", ignore)]
+    fn test_postgres_with_no_server() {
+        let err = connect(Opts {
+            connection_string: format!("Driver={};", std::env::var("POSTGRES_DRIVER").unwrap()),
+            sql_text: "".to_string(),
+        })
+        .unwrap_err();
+        assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
+        if let DbErrorType::OdbcError { error } = err.error {
+            let desc = format!("{}", error);
+            assert!(
+                desc.contains("could not connect to server: No such file or directory"),
+                desc
+            );
+        }
     }
 }

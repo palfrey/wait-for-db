@@ -1,8 +1,8 @@
+use failure::Fail;
+use odbc::{create_environment_v3, Connection, Data, DiagnosticRecord, NoData, Statement};
+use std::ffi::CStr;
 use std::io;
 use structopt::StructOpt;
-use odbc::{create_environment_v3, DiagnosticRecord, Connection, Statement, Data, NoData};
-use std::ffi::CStr;
-use failure::Fail;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
@@ -13,7 +13,7 @@ struct Opts {
 impl Default for Opts {
     fn default() -> Self {
         Opts {
-            connection_string: "".to_string()
+            connection_string: "".to_string(),
         }
     }
 }
@@ -21,29 +21,30 @@ impl Default for Opts {
 #[derive(Debug, PartialEq)]
 enum DbErrorLifetime {
     Permenant,
-    Temporary
+    Temporary,
 }
 
 #[derive(Debug, Fail)]
 enum DbErrorType {
     #[fail(display = "odbc error: {}", error)]
-    OdbcError {
-        error: DiagnosticRecord
-    },
+    OdbcError { error: DiagnosticRecord },
 
     #[fail(display = "postgres error")]
-    PostgresError
+    PostgresError,
 }
 
 #[derive(Debug)]
 struct DbError {
     kind: DbErrorLifetime,
-    error: DbErrorType
+    error: DbErrorType,
 }
 
 impl From<DiagnosticRecord> for DbError {
     fn from(item: DiagnosticRecord) -> Self {
-        let state = CStr::from_bytes_with_nul(item.get_raw_state()).unwrap().to_str().unwrap();
+        let state = CStr::from_bytes_with_nul(item.get_raw_state())
+            .unwrap()
+            .to_str()
+            .unwrap();
         let kind = if state == "IM002" || state == "01000" || state == "IM004" {
             DbErrorLifetime::Permenant
         } else {
@@ -52,7 +53,7 @@ impl From<DiagnosticRecord> for DbError {
         println!("{:?}", item);
         DbError {
             kind: kind,
-            error: DbErrorType::OdbcError {error: item}
+            error: DbErrorType::OdbcError { error: item },
         }
     }
 }
@@ -111,9 +112,12 @@ mod test {
 
     #[test]
     fn test_connect_with_missing_driver() {
-        let err = connect(Opts{connection_string: "Driver=foo;Server=blah;".to_string()}).unwrap_err();
+        let err = connect(Opts {
+            connection_string: "Driver=foo;Server=blah;".to_string(),
+        })
+        .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
-        if let DbErrorType::OdbcError {error} = err.error {
+        if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(desc.contains("Can't open lib 'foo' : file not found"), desc);
         }
@@ -121,11 +125,20 @@ mod test {
 
     #[test]
     fn test_connect_with_bad_driver() {
-        let err = connect(Opts{connection_string: format!("Driver={};Server=blah;", std::env::current_exe().unwrap().to_str().unwrap())}).unwrap_err();
+        let err = connect(Opts {
+            connection_string: format!(
+                "Driver={};Server=blah;",
+                std::env::current_exe().unwrap().to_str().unwrap()
+            ),
+        })
+        .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
-        if let DbErrorType::OdbcError {error} = err.error {
+        if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
-            assert!(desc.contains("Driver's SQLAllocHandle on SQL_HANDLE_HENV failed"), desc);
+            assert!(
+                desc.contains("Driver's SQLAllocHandle on SQL_HANDLE_HENV failed"),
+                desc
+            );
         }
     }
 }

@@ -41,6 +41,7 @@ struct DbError {
 }
 
 impl From<DiagnosticRecord> for DbError {
+    #[rustfmt::skip]
     fn from(item: DiagnosticRecord) -> Self {
         let state = CStr::from_bytes_with_nul(item.get_raw_state())
             .unwrap()
@@ -173,5 +174,22 @@ mod test {
                 desc
             );
         }
+    }
+
+    #[test]
+    #[cfg_attr(postgres_driver = "", ignore)]
+    fn test_postgres_with_server() {
+        connect(Opts {
+            connection_string: format!(
+                "Driver={};Server={};Port={};Uid={};Pwd={};",
+                std::env::var("POSTGRES_DRIVER").unwrap(),
+                std::env::var("POSTGRES_SERVER").unwrap(),
+                std::env::var("POSTGRES_PORT").unwrap(),
+                std::env::var("POSTGRES_USERNAME").unwrap(),
+                std::env::var("POSTGRES_PASSWORD").unwrap(),
+            ),
+            sql_text: "SHOW config_file".to_string(),
+        })
+        .unwrap();
     }
 }

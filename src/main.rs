@@ -51,7 +51,6 @@ impl From<DiagnosticRecord> for DbError {
         } else {
             DbErrorLifetime::Temporary
         };
-        println!("{:?}", item);
         DbError {
             kind: kind,
             error: DbErrorType::OdbcError { error: item },
@@ -142,10 +141,12 @@ mod test {
     }
 
     #[test]
+    #[cfg_attr(sqlite_driver="", ignore)]
     fn test_connect_with_good_driver() {
         connect(Opts {
             connection_string: format!(
-                "Driver=/usr/local/Cellar/sqliteodbc/0.9996/lib/libsqlite3odbc-0.9996.dylib;Database=test.db;"
+                "Driver={};Database=test.db;",
+                std::env::var("SQLITE_DRIVER").unwrap()
             ),
             sql_text: "SELECT 1 from sqlite_master".to_string(),
         })

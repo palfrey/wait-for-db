@@ -1,19 +1,20 @@
 use failure::Fail;
 use odbc::{create_environment_v3, Connection, Data, DiagnosticRecord, NoData, Statement};
 use std::ffi::CStr;
-use std::io;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 struct Opts {
     connection_string: String,
+    sql_text: String,
 }
 
 impl Default for Opts {
     fn default() -> Self {
         Opts {
             connection_string: "".to_string(),
+            sql_text: "".to_string(),
         }
     }
 }
@@ -71,17 +72,13 @@ fn main() {
 fn connect(opts: Opts) -> std::result::Result<(), DbError> {
     let env = create_environment_v3().map_err(|e| e.unwrap())?;
     let conn = env.connect_with_connection_string(&opts.connection_string)?;
-    execute_statement(&conn)
+    execute_statement(&conn, opts)
 }
 
-fn execute_statement<'env>(conn: &Connection<'env>) -> Result<(), DbError> {
+fn execute_statement<'env>(conn: &Connection<'env>, opts: Opts) -> Result<(), DbError> {
     let stmt = Statement::with_parent(conn)?;
 
-    let mut sql_text = String::new();
-    println!("Please enter SQL statement string: ");
-    io::stdin().read_line(&mut sql_text).unwrap();
-
-    match stmt.exec_direct(&sql_text)? {
+    match stmt.exec_direct(&opts.sql_text)? {
         Data(mut stmt) => {
             let cols = stmt.num_result_cols()?;
             while let Some(mut cursor) = stmt.fetch()? {
@@ -114,6 +111,7 @@ mod test {
     fn test_connect_with_missing_driver() {
         let err = connect(Opts {
             connection_string: "Driver=foo;Server=blah;".to_string(),
+            sql_text: "".to_string(),
         })
         .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
@@ -130,6 +128,7 @@ mod test {
                 "Driver={};Server=blah;",
                 std::env::current_exe().unwrap().to_str().unwrap()
             ),
+            sql_text: "".to_string(),
         })
         .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
@@ -140,5 +139,16 @@ mod test {
                 desc
             );
         }
+    }
+
+    #[test]
+    fn test_connect_with_good_driver() {
+        connect(Opts {
+            connection_string: format!(
+                "Driver=/usr/local/Cellar/sqliteodbc/0.9996/lib/libsqlite3odbc-0.9996.dylib;Database=test.db;"
+            ),
+            sql_text: "SELECT 1 from sqlite_master".to_string(),
+        })
+        .unwrap();
     }
 }

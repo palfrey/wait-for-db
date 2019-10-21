@@ -15,7 +15,7 @@ impl From<DiagnosticRecord> for DbError {
                     || state == "IM004" // bad driver
                     || state == "08001" // can't connect
         {
-            DbErrorLifetime::Permenant
+            DbErrorLifetime::Permanent
         } else {
             DbErrorLifetime::Temporary
         };
@@ -61,7 +61,7 @@ mod test {
     #[test]
     fn test_connect_no_driver() {
         let err = connect(Opts::default()).unwrap_err();
-        assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
+        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
     }
 
     #[test]
@@ -71,7 +71,7 @@ mod test {
             sql_text: "".to_string(),
         })
         .unwrap_err();
-        assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
+        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(desc.contains("Can't open lib 'foo' : file not found"), desc);
@@ -88,7 +88,7 @@ mod test {
             sql_text: "".to_string(),
         })
         .unwrap_err();
-        assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
+        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(
@@ -119,7 +119,7 @@ mod test {
             sql_text: "".to_string(),
         })
         .unwrap_err();
-        assert_eq!(err.kind, DbErrorLifetime::Permenant, "{:?}", err);
+        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(

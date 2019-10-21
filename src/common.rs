@@ -20,7 +20,7 @@ impl Default for Opts {
 
 #[derive(Debug, PartialEq)]
 pub enum DbErrorLifetime {
-    Permenant,
+    Permanent,
     Temporary,
 }
 

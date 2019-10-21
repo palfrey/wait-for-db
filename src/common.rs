@@ -5,8 +5,17 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 pub struct Opts {
+    #[structopt(required = true, long, short, help = "Connection string")]
     pub connection_string: String,
+
+    #[structopt(long, short, help = "SQL Query (default: no query)")]
     pub sql_text: String,
+
+    #[structopt(short = "t", long = "timeout", help = "Timeout (seconds)")]
+    pub timeout_seconds: i32,
+
+    #[structopt(short, long, help = "Quiet mode")]
+    pub quiet: bool,
 }
 
 impl Default for Opts {

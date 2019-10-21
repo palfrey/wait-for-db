@@ -18,12 +18,31 @@ pub struct Opts {
     pub quiet: bool,
 }
 
-impl Default for Opts {
-    fn default() -> Self {
+#[cfg(test)]
+impl Opts {
+    pub fn new() -> Self {
         Opts {
             connection_string: "".to_string(),
             sql_text: "".to_string(),
+            timeout_seconds: 0,
+            quiet: false,
         }
+    }
+
+    pub fn connection_string<I>(mut self, cs: I) -> Self
+    where
+        I: Into<String>,
+    {
+        self.connection_string = cs.into();
+        self
+    }
+
+    pub fn sql_text<I>(mut self, st: I) -> Self
+    where
+        I: Into<String>,
+    {
+        self.sql_text = st.into();
+        self
     }
 }
 

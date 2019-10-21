@@ -60,17 +60,13 @@ mod test {
 
     #[test]
     fn test_connect_no_driver() {
-        let err = connect(Opts::default()).unwrap_err();
+        let err = connect(Opts::new()).unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
     }
 
     #[test]
     fn test_connect_with_missing_driver() {
-        let err = connect(Opts {
-            connection_string: "Driver=foo;Server=blah;".to_string(),
-            sql_text: "".to_string(),
-        })
-        .unwrap_err();
+        let err = connect(Opts::new().connection_string("Driver=foo;Server=blah;")).unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
@@ -80,13 +76,10 @@ mod test {
 
     #[test]
     fn test_connect_with_bad_driver() {
-        let err = connect(Opts {
-            connection_string: format!(
-                "Driver={};Server=blah;",
-                std::env::current_exe().unwrap().to_str().unwrap()
-            ),
-            sql_text: "".to_string(),
-        })
+        let err = connect(Opts::new().connection_string(format!(
+            "Driver={};Server=blah;",
+            std::env::current_exe().unwrap().to_str().unwrap()
+        )))
         .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
@@ -101,23 +94,24 @@ mod test {
     #[test]
     #[cfg_attr(sqlite_driver = "", ignore)]
     fn test_sqlite_with_good_driver() {
-        connect(Opts {
-            connection_string: format!(
-                "Driver={};Database=test.db;",
-                std::env::var("SQLITE_DRIVER").unwrap()
-            ),
-            sql_text: "SELECT 1 from sqlite_master".to_string(),
-        })
+        connect(
+            Opts::new()
+                .connection_string(format!(
+                    "Driver={};Database=test.db;",
+                    std::env::var("SQLITE_DRIVER").unwrap()
+                ))
+                .sql_text("SELECT 1 from sqlite_master"),
+        )
         .unwrap();
     }
 
     #[test]
     #[cfg_attr(postgres_driver = "", ignore)]
     fn test_postgres_with_no_server() {
-        let err = connect(Opts {
-            connection_string: format!("Driver={};", std::env::var("POSTGRES_DRIVER").unwrap()),
-            sql_text: "".to_string(),
-        })
+        let err = connect(Opts::new().connection_string(format!(
+            "Driver={};",
+            std::env::var("POSTGRES_DRIVER").unwrap()
+        )))
         .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
@@ -132,17 +126,18 @@ mod test {
     #[test]
     #[cfg_attr(postgres_driver = "", ignore)]
     fn test_postgres_with_server() {
-        connect(Opts {
-            connection_string: format!(
-                "Driver={};Server={};Port={};Uid={};Pwd={};",
-                std::env::var("POSTGRES_DRIVER").unwrap(),
-                std::env::var("POSTGRES_SERVER").unwrap(),
-                std::env::var("POSTGRES_PORT").unwrap(),
-                std::env::var("POSTGRES_USERNAME").unwrap(),
-                std::env::var("POSTGRES_PASSWORD").unwrap(),
-            ),
-            sql_text: "SHOW config_file".to_string(),
-        })
+        connect(
+            Opts::new()
+                .connection_string(format!(
+                    "Driver={};Server={};Port={};Uid={};Pwd={};",
+                    std::env::var("POSTGRES_DRIVER").unwrap(),
+                    std::env::var("POSTGRES_SERVER").unwrap(),
+                    std::env::var("POSTGRES_PORT").unwrap(),
+                    std::env::var("POSTGRES_USERNAME").unwrap(),
+                    std::env::var("POSTGRES_PASSWORD").unwrap(),
+                ))
+                .sql_text("SHOW config_file"),
+        )
         .unwrap();
     }
 }

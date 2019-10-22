@@ -12,7 +12,7 @@ pub struct Opts {
     pub sql_text: String,
 
     #[structopt(short = "t", long = "timeout", help = "Timeout (seconds)")]
-    pub timeout_seconds: i32,
+    pub timeout_seconds: Option<u64>,
 
     #[structopt(short, long, help = "Quiet mode")]
     pub quiet: bool,
@@ -24,7 +24,7 @@ impl Opts {
         Opts {
             connection_string: "".to_string(),
             sql_text: "".to_string(),
-            timeout_seconds: 0,
+            timeout_seconds: None,
             quiet: false,
         }
     }

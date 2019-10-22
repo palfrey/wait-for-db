@@ -26,7 +26,7 @@ impl From<DiagnosticRecord> for DbError {
     }
 }
 
-pub fn connect(opts: Opts) -> std::result::Result<(), DbError> {
+pub fn connect(opts: &Opts) -> std::result::Result<(), DbError> {
     let env = create_environment_v3().map_err(|e| e.unwrap())?;
     let conn = env.connect_with_connection_string(&opts.connection_string)?;
     execute_statement(&conn, opts)
@@ -60,13 +60,13 @@ mod test {
 
     #[test]
     fn test_connect_no_driver() {
-        let err = connect(Opts::new()).unwrap_err();
+        let err = connect(&Opts::new()).unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
     }
 
     #[test]
     fn test_connect_with_missing_driver() {
-        let err = connect(Opts::new().connection_string("Driver=foo;Server=blah;")).unwrap_err();
+        let err = connect(&Opts::new().connection_string("Driver=foo;Server=blah;")).unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
@@ -76,7 +76,7 @@ mod test {
 
     #[test]
     fn test_connect_with_bad_driver() {
-        let err = connect(Opts::new().connection_string(format!(
+        let err = connect(&Opts::new().connection_string(format!(
             "Driver={};Server=blah;",
             std::env::current_exe().unwrap().to_str().unwrap()
         )))
@@ -95,7 +95,7 @@ mod test {
     #[cfg_attr(sqlite_driver = "", ignore)]
     fn test_sqlite_with_good_driver() {
         connect(
-            Opts::new()
+            &Opts::new()
                 .connection_string(format!(
                     "Driver={};Database=test.db;",
                     std::env::var("SQLITE_DRIVER").unwrap()
@@ -108,7 +108,7 @@ mod test {
     #[test]
     #[cfg_attr(postgres_driver = "", ignore)]
     fn test_postgres_with_no_server() {
-        let err = connect(Opts::new().connection_string(format!(
+        let err = connect(&Opts::new().connection_string(format!(
             "Driver={};",
             std::env::var("POSTGRES_DRIVER").unwrap()
         )))

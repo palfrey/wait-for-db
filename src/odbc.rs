@@ -13,7 +13,7 @@ impl From<DiagnosticRecord> for DbError {
         let kind = if state == "IM002"  // no driver
                     || state == "01000" // no driver at path
                     || state == "IM004" // bad driver
-                    || state == "08001" // can't connect
+                    || state == "42601" // bad query
         {
             DbErrorLifetime::Permanent
         } else {
@@ -29,13 +29,17 @@ impl From<DiagnosticRecord> for DbError {
 pub fn connect(opts: &Opts) -> std::result::Result<(), DbError> {
     let env = create_environment_v3().map_err(|e| e.unwrap())?;
     let conn = env.connect_with_connection_string(&opts.connection_string)?;
-    execute_statement(&conn, opts)
+    if let Some(ref sql_text) = opts.sql_text {
+        execute_statement(&conn, sql_text)
+    } else {
+        return Ok(());
+    }
 }
 
-fn execute_statement<'env>(conn: &Connection<'env>, opts: Opts) -> Result<(), DbError> {
+fn execute_statement<'env>(conn: &Connection<'env>, sql_text: &String) -> Result<(), DbError> {
     let stmt = Statement::with_parent(conn)?;
 
-    match stmt.exec_direct(&opts.sql_text)? {
+    match stmt.exec_direct(&sql_text)? {
         Data(mut stmt) => {
             let cols = stmt.num_result_cols()?;
             while let Some(mut cursor) = stmt.fetch()? {
@@ -113,7 +117,7 @@ mod test {
             std::env::var("POSTGRES_DRIVER").unwrap()
         )))
         .unwrap_err();
-        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
+        assert_eq!(err.kind, DbErrorLifetime::Temporary, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(
@@ -123,21 +127,44 @@ mod test {
         }
     }
 
+    fn postgres_connect() -> String {
+        format!(
+            "Driver={};Server={};Port={};Uid={};Pwd={};",
+            std::env::var("POSTGRES_DRIVER").unwrap(),
+            std::env::var("POSTGRES_SERVER").unwrap(),
+            std::env::var("POSTGRES_PORT").unwrap(),
+            std::env::var("POSTGRES_USERNAME").unwrap(),
+            std::env::var("POSTGRES_PASSWORD").unwrap(),
+        )
+    }
+
     #[test]
     #[cfg_attr(postgres_driver = "", ignore)]
     fn test_postgres_with_server() {
         connect(
-            Opts::new()
-                .connection_string(format!(
-                    "Driver={};Server={};Port={};Uid={};Pwd={};",
-                    std::env::var("POSTGRES_DRIVER").unwrap(),
-                    std::env::var("POSTGRES_SERVER").unwrap(),
-                    std::env::var("POSTGRES_PORT").unwrap(),
-                    std::env::var("POSTGRES_USERNAME").unwrap(),
-                    std::env::var("POSTGRES_PASSWORD").unwrap(),
-                ))
+            &Opts::new()
+                .connection_string(postgres_connect())
                 .sql_text("SHOW config_file"),
         )
         .unwrap();
+    }
+
+    #[test]
+    #[cfg_attr(postgres_driver = "", ignore)]
+    fn test_postgres_with_bad_query() {
+        let err = connect(
+            &Opts::new()
+                .connection_string(postgres_connect())
+                .sql_text("foobar"),
+        )
+        .unwrap_err();
+        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
+        if let DbErrorType::OdbcError { error } = err.error {
+            let desc = format!("{}", error);
+            assert!(
+                desc.contains("ERROR: syntax error at or near \"foobar\""),
+                desc
+            );
+        }
     }
 }

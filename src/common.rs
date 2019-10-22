@@ -9,7 +9,7 @@ pub struct Opts {
     pub connection_string: String,
 
     #[structopt(long, short, help = "SQL Query (default: no query)")]
-    pub sql_text: String,
+    pub sql_text: Option<String>,
 
     #[structopt(short = "t", long = "timeout", help = "Timeout (seconds)")]
     pub timeout_seconds: Option<u64>,
@@ -23,7 +23,7 @@ impl Opts {
     pub fn new() -> Self {
         Opts {
             connection_string: "".to_string(),
-            sql_text: "".to_string(),
+            sql_text: None,
             timeout_seconds: None,
             quiet: false,
         }
@@ -41,7 +41,7 @@ impl Opts {
     where
         I: Into<String>,
     {
-        self.sql_text = st.into();
+        self.sql_text = Some(st.into());
         self
     }
 }

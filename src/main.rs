@@ -1,11 +1,11 @@
-mod common;
-mod odbc;
-
 use env_logger::Builder;
 use std::env;
 use std::thread;
 use std::time::{Duration, Instant};
 use structopt::StructOpt;
+
+use wait_for_db::common;
+use wait_for_db::odbc;
 
 fn main() {
     let opt = common::Opts::from_args();

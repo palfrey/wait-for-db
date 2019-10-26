@@ -71,6 +71,19 @@ fn execute_statement<'env>(
     Ok(results)
 }
 
+// only for tests
+#[doc(hidden)]
+pub fn postgres_connect() -> String {
+    format!(
+        "Driver={};Server={};Port={};Uid={};Pwd={};",
+        std::env::var("POSTGRES_DRIVER").unwrap(),
+        std::env::var("POSTGRES_SERVER").unwrap(),
+        std::env::var("POSTGRES_PORT").unwrap(),
+        std::env::var("POSTGRES_USERNAME").unwrap(),
+        std::env::var("POSTGRES_PASSWORD").unwrap(),
+    )
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -138,17 +151,6 @@ mod test {
                 desc
             );
         }
-    }
-
-    fn postgres_connect() -> String {
-        format!(
-            "Driver={};Server={};Port={};Uid={};Pwd={};",
-            std::env::var("POSTGRES_DRIVER").unwrap(),
-            std::env::var("POSTGRES_SERVER").unwrap(),
-            std::env::var("POSTGRES_PORT").unwrap(),
-            std::env::var("POSTGRES_USERNAME").unwrap(),
-            std::env::var("POSTGRES_PASSWORD").unwrap(),
-        )
     }
 
     #[test]

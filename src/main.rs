@@ -13,6 +13,11 @@ fn main() {
         .parse_filters(&env::var("WAIT_DB_LOG").unwrap_or("odbc=off".to_string()))
         .init();
 
+    if opt.pause_seconds == 0 {
+        println!("Pause between checks should be at least 1 second");
+        std::process::exit(exitcode::USAGE);
+    }
+
     let timeout = if let Some(val) = opt.timeout_seconds {
         Some(Duration::from_secs(val))
     } else {
@@ -32,7 +37,7 @@ fn main() {
                     std::process::exit(exitcode::UNAVAILABLE);
                 }
                 common::DbErrorLifetime::Temporary => {
-                    let pause_time = Duration::from_secs(3);
+                    let pause_time = Duration::from_secs(opt.pause_seconds);
                     if let Some(t) = timeout {
                         let remaining = t - start.elapsed();
                         if remaining < pause_time {
@@ -44,7 +49,9 @@ fn main() {
                         }
                     }
                     println!(
-                        "Temporary error (pausing for 3 seconds): {:?}",
+                        "Temporary error (pausing for {} second{}): {:?}",
+                        opt.pause_seconds,
+                        if opt.pause_seconds == 1 { "" } else { "s" },
                         dberror.error
                     );
                     thread::sleep(pause_time);

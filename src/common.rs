@@ -16,6 +16,14 @@ pub struct Opts {
 
     #[structopt(short, long, help = "Quiet mode")]
     pub quiet: bool,
+
+    #[structopt(
+        short = "p",
+        long = "pause",
+        help = "Pause between checks (seconds)",
+        default_value = "3"
+    )]
+    pub pause_seconds: u64,
 }
 
 #[cfg(test)]
@@ -26,6 +34,7 @@ impl Opts {
             sql_text: None,
             timeout_seconds: None,
             quiet: false,
+            pause_seconds: 3,
         }
     }
 

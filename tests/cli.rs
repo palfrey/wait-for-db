@@ -9,7 +9,10 @@ extern crate wait_for_db;
 fn command_line_timeout() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::main_binary()?;
     cmd.arg("--timeout=1")
-        .arg(format!("--connection-string={}", wait_for_db::odbc::postgres_connect()))
+        .arg(format!(
+            "--connection-string={}",
+            wait_for_db::odbc::postgres_connect()
+        ))
         .arg("--sql-text=select 1 from foo");
     cmd.assert().failure().stdout(
         predicate::str::contains("Temporary error (exiting as out of time)").and(

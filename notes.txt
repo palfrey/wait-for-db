@@ -1,0 +1,3 @@
+POSTGRES_SERVER=localhost POSTGRES_PORT=32768 POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/local/Cellar/psqlodbc/10.03.0000_1/lib/psqlodbca.so SQLITE_DRIVER=/usr/local/Cellar/sqliteodbc/0.9996/lib/libsqlite3odbc-0.9996.dylib cargo watch -s "cargo test -- --nocapture"
+
+https://stackoverflow.com/questions/35069027/docker-wait-for-postgresql-to-be-running

@@ -54,7 +54,9 @@ fn execute_statement<'env>(conn: &Connection<'env>, sql_text: &String) -> Result
                         Some(val) => {
                             result.insert(cols[&i].name.clone(), val);
                         }
-                        None => print!(" NULL"),
+                        None => {
+                            result.insert(cols[&i].name.clone(), "".to_string());
+                        }
                     }
                 }
                 results.push(result);

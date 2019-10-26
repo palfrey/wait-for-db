@@ -2,6 +2,7 @@ use odbc::{create_environment_v3, Connection, Data, DiagnosticRecord, NoData, St
 use std::ffi::CStr;
 
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
+use std::collections::HashMap;
 
 impl From<DiagnosticRecord> for DbError {
     #[rustfmt::skip]
@@ -26,36 +27,43 @@ impl From<DiagnosticRecord> for DbError {
     }
 }
 
-pub fn connect(opts: &Opts) -> std::result::Result<(), DbError> {
+pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
     let env = create_environment_v3().map_err(|e| e.unwrap())?;
     let conn = env.connect_with_connection_string(&opts.connection_string)?;
     if let Some(ref sql_text) = opts.sql_text {
         execute_statement(&conn, sql_text)
     } else {
-        return Ok(());
+        return Ok(Vec::new());
     }
 }
 
-fn execute_statement<'env>(conn: &Connection<'env>, sql_text: &String) -> Result<(), DbError> {
+fn execute_statement<'env>(conn: &Connection<'env>, sql_text: &String) -> Result<Vec<HashMap<String, String>>, DbError> {
     let stmt = Statement::with_parent(conn)?;
-
+    let mut results: Vec<HashMap<String, String>> = Vec::new();
     match stmt.exec_direct(&sql_text)? {
         Data(mut stmt) => {
-            let cols = stmt.num_result_cols()?;
+            let col_count = stmt.num_result_cols()? as u16;
+            let mut cols: HashMap<u16, odbc::ColumnDescriptor> = HashMap::new();
+            for i in 1..(col_count+1) {
+                cols.insert(i, stmt.describe_col(i)?);
+            }
             while let Some(mut cursor) = stmt.fetch()? {
-                for i in 1..(cols + 1) {
-                    match cursor.get_data::<&str>(i as u16)? {
-                        Some(val) => print!(" {}", val),
+                let mut result: HashMap<String, String> = HashMap::new();
+                for i in 1..(col_count + 1) {
+                    match cursor.get_data::<String>(i as u16)? {
+                        Some(val) => {
+                            result.insert(cols[&i].name.clone(), val);
+                        }
                         None => print!(" NULL"),
                     }
                 }
-                println!("");
+                results.push(result);
             }
         }
         NoData(_) => println!("Query executed, no data returned"),
     }
 
-    Ok(())
+    Ok(results)
 }
 
 #[cfg(test)]

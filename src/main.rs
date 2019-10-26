@@ -22,8 +22,8 @@ fn main() {
     let start = Instant::now();
     while timeout.is_none() || start.elapsed() < timeout.unwrap() {
         match odbc::connect(&opt) {
-            Ok(()) => {
-                println!("Success");
+            Ok(results) => {
+                println!("Success {:?}", results);
                 std::process::exit(exitcode::OK);
             }
             Err(dberror) => match dberror.kind {

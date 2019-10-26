@@ -37,14 +37,17 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
     }
 }
 
-fn execute_statement<'env>(conn: &Connection<'env>, sql_text: &String) -> Result<Vec<HashMap<String, String>>, DbError> {
+fn execute_statement<'env>(
+    conn: &Connection<'env>,
+    sql_text: &String,
+) -> Result<Vec<HashMap<String, String>>, DbError> {
     let stmt = Statement::with_parent(conn)?;
     let mut results: Vec<HashMap<String, String>> = Vec::new();
     match stmt.exec_direct(&sql_text)? {
         Data(mut stmt) => {
             let col_count = stmt.num_result_cols()? as u16;
             let mut cols: HashMap<u16, odbc::ColumnDescriptor> = HashMap::new();
-            for i in 1..(col_count+1) {
+            for i in 1..(col_count + 1) {
                 cols.insert(i, stmt.describe_col(i)?);
             }
             while let Some(mut cursor) = stmt.fetch()? {

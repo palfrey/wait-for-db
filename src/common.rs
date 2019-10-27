@@ -1,29 +1,59 @@
-use failure::Fail;
+use clap::{App, Arg};
 use odbc::DiagnosticRecord;
-use structopt::StructOpt;
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
 pub struct Opts {
-    #[structopt(required = true, long, short, help = "Connection string")]
     pub connection_string: String,
-
-    #[structopt(long, short, help = "SQL Query (default: no query)")]
     pub sql_text: Option<String>,
-
-    #[structopt(short = "t", long = "timeout", help = "Timeout (seconds)")]
     pub timeout_seconds: Option<u64>,
-
-    #[structopt(short, long, help = "Quiet mode")]
     pub quiet: bool,
-
-    #[structopt(
-        short = "p",
-        long = "pause",
-        help = "Pause between checks (seconds)",
-        default_value = "3"
-    )]
     pub pause_seconds: u64,
+}
+
+pub fn parse_args() -> Opts {
+    let matches = App::new("wait-for-db")
+        .arg(
+            Arg::with_name("connection-string")
+                .short("c")
+                .long("connection-string")
+                .required(true)
+                .takes_value(true)
+                .help("Connection string"),
+        )
+        .arg(
+            Arg::with_name("sql-text")
+                .short("s")
+                .long("sql-text")
+                .takes_value(true)
+                .help("SQL Query (default: no query)"),
+        )
+        .arg(
+            Arg::with_name("timeout")
+                .short("t")
+                .long("timeout")
+                .takes_value(true)
+                .help("Timeout (seconds)"),
+        )
+        .arg(
+            Arg::with_name("quiet")
+                .short("q")
+                .long("quiet")
+                .help("Quiet mode"),
+        )
+        .arg(
+            Arg::with_name("pause")
+                .short("p")
+                .long("pause")
+                .takes_value(true)
+                .help("Pause between checks (seconds)")
+                .default_value("3"),
+        ).get_matches();
+    Opts {
+        connection_string: matches.value_of("connection-string").unwrap().to_string(),
+        sql_text: matches.value_of("sql-text").and_then(|s| Some(s.to_string())),
+        timeout_seconds: matches.value_of("timeout-seconds").and_then(|s| u64::from_str_radix(s, 10).ok()),
+        quiet: matches.is_present("quiet"),
+        pause_seconds: matches.value_of("pause").and_then(|s| u64::from_str_radix(s, 10).ok()).unwrap(),
+    }
 }
 
 #[cfg(test)]
@@ -61,12 +91,9 @@ pub enum DbErrorLifetime {
     Temporary,
 }
 
-#[derive(Debug, Fail)]
+#[derive(Debug)]
 pub enum DbErrorType {
-    #[fail(display = "odbc error: {}", error)]
     OdbcError { error: DiagnosticRecord },
-
-    #[fail(display = "postgres error")]
     PostgresError,
 }
 

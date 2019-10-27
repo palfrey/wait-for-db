@@ -2,13 +2,12 @@ use env_logger::Builder;
 use std::env;
 use std::thread;
 use std::time::{Duration, Instant};
-use structopt::StructOpt;
 
 use wait_for_db::common;
 use wait_for_db::odbc;
 
 fn main() {
-    let opt = common::Opts::from_args();
+    let opt = common::parse_args();
     Builder::new()
         .parse_filters(&env::var("WAIT_DB_LOG").unwrap_or("odbc=off".to_string()))
         .init();

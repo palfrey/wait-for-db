@@ -1,4 +1,5 @@
 fn main() {
+    // Env variables here are only actually used by the tests
     println!("cargo:rerun-if-env-changed=SQLITE_DRIVER");
     println!(
         "cargo:rustc-cfg=sqlite_driver=\"{}\"",

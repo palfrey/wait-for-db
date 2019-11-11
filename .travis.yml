@@ -1,0 +1,8 @@
+language: minimal
+
+services:
+  - docker
+
+script:
+  - docker build . -t wait_for_db
+  - docker run --rm wait_for_db --help

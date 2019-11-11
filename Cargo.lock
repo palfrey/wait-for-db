@@ -168,26 +168,27 @@ dependencies = [
 
 [[package]]
 name = "odbc"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "encoding_rs 0.8.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "odbc-safe 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "odbc-sys 0.6.3",
+ "odbc-safe 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "odbc-sys 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "odbc-safe"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "odbc-sys 0.6.3",
+ "odbc-sys 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "odbc-sys"
-version = "0.6.3"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "predicates"
@@ -353,7 +354,9 @@ dependencies = [
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "exitcode 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "odbc 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "odbc 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "odbc-safe 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "odbc-sys 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "predicates 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -417,8 +420,9 @@ dependencies = [
 "checksum memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "88579771288728879b57485cc7d6b07d648c9f0141eb955f8ab7f9d45394468e"
 "checksum normalize-line-endings 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "2e0a1a39eab95caf4f5556da9289b9e68f0aafac901b2ce80daaf020d3b733a8"
 "checksum num-traits 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "6ba9a427cfca2be13aa6f6403b0b7e7368fe982bfa16fccc450ce74c46cd9b32"
-"checksum odbc 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)" = "25fde6f4be9145603b254d7a95a50f4ca9949dce169963ffafb01569f620f3b9"
-"checksum odbc-safe 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f57e420b988c9d41005b33da6710bc1a657f2ce540a951c8aeb1d23ce1615502"
+"checksum odbc 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e7e7da79b8afcc4927958a6f4e0c99411f0c5d7e0e81d979a93931a10bbf79df"
+"checksum odbc-safe 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "295c78ae0c083e2479f94941464e39ffce7c3b8a94e5c1c88eeaaa5789d30203"
+"checksum odbc-sys 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dec5c5490e13c423d25508b13cd2cc432490043f5ed5b46b61a75857642f4f37"
 "checksum predicates 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "53e09015b0d3f5a0ec2d4428f7559bb7b3fff341b4e159fedd1d57fac8b939ff"
 "checksum predicates-core 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "06075c3a3e92559ff8929e7a280684489ea27fe44805174c3ebd9328dcb37178"
 "checksum predicates-tree 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8e63c4859013b38a76eca2414c64911fba30def9e3202ac461a2d22831220124"

@@ -38,7 +38,7 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
 }
 
 fn execute_statement<'env>(
-    conn: &Connection<'env>,
+    conn: &Connection<'env, odbc_safe::AutocommitOn>,
     sql_text: &String,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let stmt = Statement::with_parent(conn)?;

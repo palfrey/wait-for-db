@@ -91,7 +91,7 @@ int fetch(char *url, const char *destdir, bool insecure)
 	};
 	struct cmdarray curlcmd = {
 		.argc = 5,
-		.argv = { "curl", "-L", "-f", "-o", partfile, NULL }
+		.argv = { "curl", "-L", "--verbose", "-o", partfile, NULL }
 	};
 	struct cmdarray wgetcmd = {
 		.argc = 3,
@@ -150,7 +150,7 @@ int fetch(char *url, const char *destdir, bool insecure)
 	add_opt(&curlcmd, url);
 	add_opt(&wgetcmd, url);
 
-	status = fork_exec(curlcmd.argv, 0);
+	status = fork_exec(curlcmd.argv, 1);
 
 	/* CURLE_RANGE_ERROR (33)
 	   The server does not support or accept range requests. */

@@ -1,9 +1,6 @@
 FROM rust:1.38.0-alpine3.10 as builder
 
 RUN apk add --no-cache git abuild musl-dev make file
-ADD abuild-fetch.c /abuild-fetch.c
-RUN gcc abuild-fetch.c -o /usr/bin/abuild-fetch
-RUN abuild-fetch https://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.gz
 RUN cd / && git clone -b static-builds https://github.com/palfrey/aports.git
 RUN abuild-keygen -ain
 RUN cd /aports/main/unixodbc/ && abuild -F fetch unpack build rootpkg

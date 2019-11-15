@@ -5,6 +5,7 @@ use std::time::{Duration, Instant};
 
 use wait_for_db::common;
 use wait_for_db::odbc;
+use wait_for_db::pg;
 
 fn main() {
     let opt = common::parse_args();
@@ -25,7 +26,11 @@ fn main() {
 
     let start = Instant::now();
     while timeout.is_none() || start.elapsed() < timeout.unwrap() {
-        match odbc::connect(&opt) {
+        match if opt.mode == common::DbMode::Odbc {
+            odbc::connect(&opt)
+        } else {
+            pg::connect(&opt)
+        } {
             Ok(results) => {
                 println!("Success {:?}", results);
                 std::process::exit(exitcode::OK);

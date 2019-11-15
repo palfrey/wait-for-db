@@ -1,7 +1,24 @@
-use postgres::{Connection, TlsMode};
+use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
+use postgres::{Connection, Error, TlsMode};
+use std::collections::HashMap;
+
+impl From<Error> for DbError {
+    #[rustfmt::skip]
+    fn from(item: Error) -> Self {
+        let kind = if item.as_connection().is_some() {
+            DbErrorLifetime::Permanent
+        } else {
+            DbErrorLifetime::Temporary
+        };
+        DbError {
+            kind: kind,
+            error: DbErrorType::PostgresError { error: item },
+        }
+    }
+}
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
-    let conn = Connection::connect(opts.connection_string, TlsMode::None)?;
+    let conn = Connection::connect(opts.connection_string.as_str(), TlsMode::None)?;
     if let Some(ref sql_text) = opts.sql_text {
         execute_statement(&conn, sql_text)
     } else {
@@ -10,34 +27,21 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
 }
 
 fn execute_statement<'env>(
-    conn: &Connection<'env, odbc_safe::AutocommitOn>,
+    conn: &postgres::Connection,
     sql_text: &String,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
-    let stmt = Statement::with_parent(conn)?;
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    match stmt.exec_direct(&sql_text)? {
-        Data(mut stmt) => {
-            let col_count = stmt.num_result_cols()? as u16;
-            let mut cols: HashMap<u16, odbc::ColumnDescriptor> = HashMap::new();
-            for i in 1..(col_count + 1) {
-                cols.insert(i, stmt.describe_col(i)?);
-            }
-            while let Some(mut cursor) = stmt.fetch()? {
-                let mut result: HashMap<String, String> = HashMap::new();
-                for i in 1..(col_count + 1) {
-                    match cursor.get_data::<String>(i as u16)? {
-                        Some(val) => {
-                            result.insert(cols[&i].name.clone(), val);
-                        }
-                        None => {
-                            result.insert(cols[&i].name.clone(), "".to_string());
-                        }
-                    }
-                }
-                results.push(result);
-            }
+    let rows = conn.query(&sql_text, &[])?;
+    let cols = rows.columns();
+    for row in rows.iter() {
+        let mut result: HashMap<String, String> = HashMap::new();
+        for i in 0..cols.len() {
+            let val = row
+                .get_opt::<usize, String>(i)
+                .unwrap_or(Ok("".to_string()));
+            result.insert(cols[i].name().to_string(), val.unwrap_or("".to_string()));
         }
-        NoData(_) => println!("Query executed, no data returned"),
+        results.push(result);
     }
 
     Ok(results)

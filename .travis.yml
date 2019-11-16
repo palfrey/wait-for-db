@@ -30,9 +30,10 @@ env:
   global:
     - ODBC_SYS_STATIC_PATH=/usr/lib/x86_64-linux-gnu/
     - POSTGRES_SERVER=localhost
-    - POSTGRES_PORT=5432
+    - POSTGRES_PORT=5433
     - POSTGRES_USERNAME=foo
     - POSTGRES_PASSWORD=bar
+    - PGPORT=5433
     - RUST_BACKTRACE=1
     - POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so
     - SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so

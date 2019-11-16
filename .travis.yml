@@ -13,6 +13,7 @@ addons:
     - unixodbc-dev
     - odbc-postgresql
     - libsqliteodbc
+  postgresql: 10
 
 script:
   - cargo test -- --nocapture || travis_terminate 1

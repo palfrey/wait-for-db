@@ -45,15 +45,12 @@ jobs:
           - psqlodbc
           - sqliteodbc
           - postgresql
-      env: SQLITE_DRIVER=/usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib POSTGRES_DRIVER=/usr/local/opt/psqlodbc/lib/sqlodbca.so HOMEBREW_NO_INSTALL_CLEANUP=1
+      env: SQLITE_DRIVER=/usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib POSTGRES_DRIVER=/usr/local/opt/psqlodbc/lib/psqlodbca.so HOMEBREW_NO_INSTALL_CLEANUP=1
       before_script:
         - pg_ctl -D /usr/local/var/postgres start
         - psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
         - createdb -O foo foo
       script:
-        - brew --prefix psqlodbc
-        - brew --prefix sqliteodbc
-        - find /usr/local/opt/
         - cargo test -- --nocapture || travis_terminate 1
         - cargo build --release || travis_terminate 1
         - strip target/release/wait_for_db || travis_terminate 1

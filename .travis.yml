@@ -27,7 +27,7 @@ env:
     - POSTGRES_SERVER=localhost
     - POSTGRES_PORT=5432
     - POSTGRES_USERNAME=postgres
-    - POSTGRES_PASSWORD=
+    - POSTGRES_PASSWORD=postgres
     - RUST_BACKTRACE=1
     - POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so
     - SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so

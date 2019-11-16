@@ -19,6 +19,9 @@ jobs:
         - docker
         - postgresql
       env: ODBC_SYS_STATIC_PATH=/usr/lib/x86_64-linux-gnu/ POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so
+      before_script:
+        - sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+        - sudo -u postgres createdb -O foo foo
       script:
         - cargo test -- --nocapture || travis_terminate 1
         - docker build . -t wait_for_db || travis_terminate 1
@@ -38,6 +41,15 @@ jobs:
       osx_image: xcode11.2 
       services:
         - postgresql
+      addons:
+        homebrew:
+          packages:
+          - psqlodbc
+          - sqliteodbc
+      env: SQLITE_DRIVER=/usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib POSTGRES_DRIVER=/usr/local/opt/psqlodbc/lib/sqlodbca.so
+      before_script:
+        - psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+        - createdb -O foo foo
       script:
         - cargo test -- --nocapture || travis_terminate 1
         - cargo build --release || travis_terminate 1
@@ -53,10 +65,6 @@ jobs:
         overwrite: true
         # on:
         #   tags: true
-
-before_script:
-  - sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
-  - sudo -u postgres createdb -O foo foo
 
 env:
   global:

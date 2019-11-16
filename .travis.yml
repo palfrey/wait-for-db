@@ -13,9 +13,9 @@ addons:
     - libsqliteodbc
 
 script:
-  - cargo test -- --nocapture
-  - docker build . -t wait_for_db
-  - docker run --rm wait_for_db --help
+  - cargo test -- --nocapture || travis_terminate 1
+  - docker build . -t wait_for_db || travis_terminate 1
+  - docker run --rm wait_for_db --help || travis_terminate 1
 
 env:
   global:

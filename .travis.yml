@@ -39,16 +39,16 @@ jobs:
 
     - os: osx
       osx_image: xcode11.2 
-      services:
-        - postgresql
       addons:
         homebrew:
           packages:
           - psqlodbc
           - sqliteodbc
+          - postgresql
       env: SQLITE_DRIVER=/usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib POSTGRES_DRIVER=/usr/local/opt/psqlodbc/lib/sqlodbca.so
       before_script:
-        - psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+        - pg_ctl -D /usr/local/var/postgres start
+        - psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
         - createdb -O foo foo
       script:
         - cargo test -- --nocapture || travis_terminate 1

@@ -1,3 +1,4 @@
+version: "~> 1.0"
 language: rust
 dist: bionic
 
@@ -39,8 +40,7 @@ env:
 
 deploy:
   provider: releases
-  api_key:
-    secure: "EJnploggtmiPSTZdGRK4aF0morZwWOzSC9bjLqaSRrRkKRUl4dFOvibKOuPrK/xndoDmiB6YkPTR6pgIDbUtlT22IFexcjcru54VmP2oYeSCfS/rFeqZq5AS71t+eEn00lUrdqMO7tOuQNV5Np6d6TdwY6EYdX9JTlnbknkvhJ+7gsv1wmEbtkaSrcXvku11gzPNySafvxEZuufFGjTTVhCVL7h282NeCUA7+lBeh1LvEobTdyfCWkG039vMO2iyCffAF1URBsp2/Tk+NwIl6epaKrsFZg4eA5tgLzXp3K6TVGt24OMOlp99vs2X4GJl4Q+bK1cYKw1Nth1t1DvmUhV9aRmrSDJIrZJW+HEzD1SkQQ9hovdRnkEf7du7Xxepe6X6I9U7YkVlboMy0xBj33SfLGsgEs/slWYh3PbU/smwHIE7TO8iJDWQ052I5F+e+Jrqme9+D7hBFk7EHDCj3YZtgDLphvruiBroxX7JI4A+wo6GmicMni3ZU3q+pxXAN519Gm+4VHcqpCboY12XJowNP2mJ8ehNSkDp5Qh0uZn/CScSIGE7CTuEntFoG/P5/6cy0T1zbdulj5o4Lv2p6fPHujyTCgw5M8SZIpKL4qc9BYoeRmz5McMFJNLBeTuNqtgjktTNw4vwX0mHdLqmXnw72mvp9BYxf4FPRwPsA4g="
+  edge: true
   file: "wait_for_db"
   skip_cleanup: true
   draft: true

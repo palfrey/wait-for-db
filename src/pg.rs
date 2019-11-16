@@ -5,7 +5,7 @@ use std::collections::HashMap;
 impl From<Error> for DbError {
     #[rustfmt::skip]
     fn from(item: Error) -> Self {
-        let kind = if item.as_connection().is_some() {
+        let kind = if item.as_connection().is_some() || item.as_db().and_then(|e| if e.code == postgres::error::SYNTAX_ERROR { Some(()) } else { None }).is_some() {
             DbErrorLifetime::Permanent
         } else {
             DbErrorLifetime::Temporary
@@ -45,4 +45,63 @@ fn execute_statement<'env>(
     }
 
     Ok(results)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn postgres_connect() -> String {
+        format!(
+            "postgresql://{}:{}@{}:{}",
+            std::env::var("POSTGRES_USERNAME").unwrap(),
+            std::env::var("POSTGRES_PASSWORD").unwrap(),
+            std::env::var("POSTGRES_SERVER").unwrap(),
+            std::env::var("POSTGRES_PORT").unwrap(),
+        )
+    }
+
+    #[test]
+    #[cfg_attr(postgres_driver = "", ignore)]
+    fn test_postgres_with_no_server() {
+        let err = connect(&Opts::new().connection_string("postgresql://")).unwrap_err();
+        assert_eq!(err.kind, DbErrorLifetime::Temporary, "{:?}", err);
+        if let DbErrorType::OdbcError { error } = err.error {
+            let desc = format!("{}", error);
+            assert!(
+                desc.contains("could not connect to server: No such file or directory"),
+                desc
+            );
+        }
+    }
+
+    #[test]
+    #[cfg_attr(postgres_driver = "", ignore)]
+    fn test_postgres_with_server() {
+        connect(
+            &Opts::new()
+                .connection_string(postgres_connect())
+                .sql_text("SHOW config_file"),
+        )
+        .unwrap();
+    }
+
+    #[test]
+    #[cfg_attr(postgres_driver = "", ignore)]
+    fn test_postgres_with_bad_query() {
+        let err = connect(
+            &Opts::new()
+                .connection_string(postgres_connect())
+                .sql_text("foobar"),
+        )
+        .unwrap_err();
+        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
+        if let DbErrorType::OdbcError { error } = err.error {
+            let desc = format!("{}", error);
+            assert!(
+                desc.contains("ERROR: syntax error at or near \"foobar\""),
+                desc
+            );
+        }
+    }
 }

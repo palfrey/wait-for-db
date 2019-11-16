@@ -1,9 +1,0 @@
-POSTGRES_SERVER=localhost POSTGRES_PORT=32768 POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/local/Cellar/psqlodbc/10.03.0000_1/lib/psqlodbca.so SQLITE_DRIVER=/usr/local/Cellar/sqliteodbc/0.9996/lib/libsqlite3odbc-0.9996.dylib cargo watch -s "cargo test -- --nocapture"
-
-https://stackoverflow.com/questions/35069027/docker-wait-for-postgresql-to-be-running
-
-musl static can't use proc_macro https://github.com/rust-lang/rust/issues/59302
-
-https://doc.rust-lang.org/edition-guide/rust-2018/platform-and-target-support/musl-support-for-fully-static-binaries.html
-
-RUSTFLAGS="-C target-feature=+crt-static" cargo run --target=x86_64-unknown-linux-musl

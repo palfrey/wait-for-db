@@ -9,6 +9,7 @@ services:
 addons:
   apt:
     packages:
+    - unixodbc-dev
     - odbc-postgresql
     - libsqliteodbc
 

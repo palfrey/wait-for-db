@@ -20,6 +20,7 @@ script:
 
 env:
   global:
+    - ODBC_SYS_STATIC_PATH=/usr/lib/x86_64-linux-gnu/
     - POSTGRES_SERVER=localhost
     - POSTGRES_PORT=5432
     - POSTGRES_USERNAME=postgres

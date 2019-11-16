@@ -25,7 +25,7 @@ script:
   - cargo test -- --nocapture || travis_terminate 1
   - docker build . -t wait_for_db || travis_terminate 1
   - docker run --name wait_for_db wait_for_db --help || travis_terminate 1
-  - docker cp wait_for_db:/wait_for_db .
+  - docker cp wait_for_db:/wait_for_db wait-for-db-linux-x86
 
 env:
   global:
@@ -41,7 +41,7 @@ env:
 deploy:
   provider: releases
   edge: true
-  file: "wait_for_db"
+  file: wait-for-db-linux-x86
   skip_cleanup: true
   draft: true
   overwrite: true

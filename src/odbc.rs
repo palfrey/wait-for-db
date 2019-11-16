@@ -137,9 +137,9 @@ mod test {
 
     #[test]
     #[cfg_attr(postgres_driver = "", ignore)]
-    fn test_postgres_with_no_server() {
+    fn test_postgres_with_wrong_server() {
         let err = connect(&Opts::new().connection_string(format!(
-            "Driver={};",
+            "Driver={};Server=tevp.net",
             std::env::var("POSTGRES_DRIVER").unwrap()
         )))
         .unwrap_err();
@@ -147,7 +147,7 @@ mod test {
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(
-                desc.contains("could not connect to server: No such file or directory"),
+                desc.contains("could not connect to server: Connection refused"),
                 desc
             );
         }

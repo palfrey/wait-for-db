@@ -45,7 +45,7 @@ jobs:
           - psqlodbc
           - sqliteodbc
           - postgresql
-      env: SQLITE_DRIVER=/usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib POSTGRES_DRIVER=/usr/local/opt/psqlodbc/lib/sqlodbca.so
+      env: SQLITE_DRIVER=/usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib POSTGRES_DRIVER=/usr/local/opt/psqlodbc/lib/sqlodbca.so HOMEBREW_NO_INSTALL_CLEANUP=1
       before_script:
         - pg_ctl -D /usr/local/var/postgres start
         - psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"

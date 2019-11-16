@@ -47,19 +47,21 @@ fn execute_statement<'env>(
     Ok(results)
 }
 
+// only for tests
+#[doc(hidden)]
+pub fn postgres_connect() -> String {
+    format!(
+        "postgresql://{}:{}@{}:{}",
+        std::env::var("POSTGRES_USERNAME").unwrap(),
+        std::env::var("POSTGRES_PASSWORD").unwrap(),
+        std::env::var("POSTGRES_SERVER").unwrap(),
+        std::env::var("POSTGRES_PORT").unwrap(),
+    )
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
-
-    fn postgres_connect() -> String {
-        format!(
-            "postgresql://{}:{}@{}:{}",
-            std::env::var("POSTGRES_USERNAME").unwrap(),
-            std::env::var("POSTGRES_PASSWORD").unwrap(),
-            std::env::var("POSTGRES_SERVER").unwrap(),
-            std::env::var("POSTGRES_PORT").unwrap(),
-        )
-    }
 
     #[test]
     #[cfg_attr(postgres_driver = "", ignore)]

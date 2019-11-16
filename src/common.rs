@@ -81,7 +81,7 @@ pub fn parse_args() -> Opts {
             .value_of("sql-text")
             .and_then(|s| Some(s.to_string())),
         timeout_seconds: matches
-            .value_of("timeout-seconds")
+            .value_of("timeout")
             .and_then(|s| u64::from_str_radix(s, 10).ok()),
         quiet: matches.is_present("quiet"),
         pause_seconds: matches

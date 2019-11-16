@@ -50,7 +50,7 @@ pub fn parse_args() -> Opts {
                 .short("s")
                 .long("sql-text")
                 .takes_value(true)
-                .help("SQL Query (default: no query)"),
+                .help("SQL query that should return at least one row (default: no querying)"),
         )
         .arg(
             Arg::with_name("timeout")

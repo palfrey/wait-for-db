@@ -159,7 +159,7 @@ mod test {
         connect(
             &Opts::new()
                 .connection_string(postgres_connect())
-                .sql_text("SHOW config_file"),
+                .sql_text("SHOW IS_SUPERUSER"),
         )
         .unwrap();
     }

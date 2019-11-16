@@ -1,8 +1,28 @@
-language: minimal
+language: rust
+
+cache: cargo
 
 services:
   - docker
+  - postgresql
+
+addons:
+  apt:
+    packages:
+    - odbc-postgresql
+    - libsqliteodbc
 
 script:
+  - cargo test -- --nocapture
   - docker build . -t wait_for_db
   - docker run --rm wait_for_db --help
+
+env:
+  global:
+    - POSTGRES_SERVER=localhost
+    - POSTGRES_PORT=5432
+    - POSTGRES_USERNAME=postgres
+    - POSTGRES_PASSWORD=
+    - RUST_BACKTRACE=1
+    - POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so
+    - SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so

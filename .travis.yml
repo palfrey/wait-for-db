@@ -17,8 +17,8 @@ addons:
   postgresql: 10
 
 before_script:
-  - sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
-  - sudo -u postgres createdb -O foo foo
+  - sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -p $PGPORT -U postgres
+  - sudo -u postgres createdb -O foo -p $PGPORT foo
 
 script:
   - cargo test -- --nocapture || travis_terminate 1

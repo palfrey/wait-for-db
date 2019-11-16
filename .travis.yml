@@ -45,5 +45,5 @@ deploy:
   skip_cleanup: true
   draft: true
   overwrite: true
-  # on:
-  #   tags: true
+  on:
+    tags: true

@@ -57,7 +57,7 @@ pub fn parse_args() -> Opts {
                 .short("t")
                 .long("timeout")
                 .takes_value(true)
-                .help("Timeout (seconds)"),
+                .help("Timeout in seconds (default: wait forever)"),
         )
         .arg(
             Arg::with_name("quiet")

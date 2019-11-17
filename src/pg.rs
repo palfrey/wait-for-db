@@ -19,8 +19,8 @@ impl From<Error> for DbError {
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
     let conn = Connection::connect(opts.connection_string.as_str(), TlsMode::None)?;
-    if let Some(ref sql_text) = opts.sql_text {
-        execute_statement(&conn, sql_text)
+    if let Some(ref sql_query) = opts.sql_query {
+        execute_statement(&conn, sql_query)
     } else {
         return Ok(Vec::new());
     }
@@ -28,10 +28,10 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
 
 fn execute_statement<'env>(
     conn: &postgres::Connection,
-    sql_text: &String,
+    sql_query: &String,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    let rows = conn.query(&sql_text, &[])?;
+    let rows = conn.query(&sql_query, &[])?;
     let cols = rows.columns();
     for row in rows.iter() {
         let mut result: HashMap<String, String> = HashMap::new();
@@ -83,7 +83,7 @@ mod test {
         connect(
             &Opts::new()
                 .connection_string(postgres_connect())
-                .sql_text("SHOW IS_SUPERUSER"),
+                .sql_query("SHOW IS_SUPERUSER"),
         )
         .unwrap();
     }
@@ -94,7 +94,7 @@ mod test {
         let err = connect(
             &Opts::new()
                 .connection_string(postgres_connect())
-                .sql_text("foobar"),
+                .sql_query("foobar"),
         )
         .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);

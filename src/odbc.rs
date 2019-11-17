@@ -30,8 +30,8 @@ impl From<DiagnosticRecord> for DbError {
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
     let env = create_environment_v3().map_err(|e| e.unwrap())?;
     let conn = env.connect_with_connection_string(&opts.connection_string)?;
-    if let Some(ref sql_text) = opts.sql_text {
-        execute_statement(&conn, sql_text)
+    if let Some(ref sql_query) = opts.sql_query {
+        execute_statement(&conn, sql_query)
     } else {
         return Ok(Vec::new());
     }
@@ -39,11 +39,11 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
 
 fn execute_statement<'env>(
     conn: &Connection<'env, odbc_safe::AutocommitOn>,
-    sql_text: &String,
+    sql_query: &String,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let stmt = Statement::with_parent(conn)?;
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    match stmt.exec_direct(&sql_text)? {
+    match stmt.exec_direct(&sql_query)? {
         Data(mut stmt) => {
             let col_count = stmt.num_result_cols()? as u16;
             let mut cols: HashMap<u16, odbc::ColumnDescriptor> = HashMap::new();
@@ -130,7 +130,7 @@ mod test {
                     "Driver={};Database=test.db;",
                     std::env::var("SQLITE_DRIVER").unwrap()
                 ))
-                .sql_text("SELECT 1 from sqlite_master"),
+                .sql_query("SELECT 1 from sqlite_master"),
         )
         .unwrap();
     }
@@ -159,7 +159,7 @@ mod test {
         connect(
             &Opts::new()
                 .connection_string(postgres_connect())
-                .sql_text("SHOW IS_SUPERUSER"),
+                .sql_query("SHOW IS_SUPERUSER"),
         )
         .unwrap();
     }
@@ -170,7 +170,7 @@ mod test {
         let err = connect(
             &Opts::new()
                 .connection_string(postgres_connect())
-                .sql_text("foobar"),
+                .sql_query("foobar"),
         )
         .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);

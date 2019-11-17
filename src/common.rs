@@ -28,6 +28,7 @@ pub struct Opts {
 
 pub fn parse_args() -> Opts {
     let matches = App::new("wait-for-db")
+        .version(clap::crate_version!())
         .arg(
             Arg::with_name("mode")
                 .short("m")

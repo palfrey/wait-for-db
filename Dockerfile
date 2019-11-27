@@ -1,18 +1,8 @@
-FROM rust:1.38.0-alpine3.10 as builder
+FROM alpine:edge as builder
 
-RUN apk add --no-cache git abuild musl-dev make file
-RUN cd / && git clone -b static-builds https://github.com/palfrey/aports.git
-RUN abuild-keygen -ain
-RUN cd /aports/main/unixodbc/ && abuild -F fetch unpack build rootpkg
-RUN apk add --no-cache bash m4 help2man
-RUN cd /aports/main/libtool/ && abuild -F fetch unpack build rootpkg
-RUN apk index -o ~/packages/main/x86_64/APKINDEX.tar.gz ~/packages/main/x86_64/*.apk
-RUN apk add --allow-untrusted --no-cache --repository ~/packages/main/ unixodbc-static unixodbc-dev libltdl-static
-
-# FIXME: Revert back to this once the following PRs are merged
-# * https://github.com/alpinelinux/aports/pull/12004 (creates unixodbc-static)
-# * https://github.com/alpinelinux/aports/pull/12083 (creates libltdl-static)
-# RUN apk add --no-cache unixodbc-dev unixodbc-static libltdl-static
+RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing rustup && rustup-init -y --default-host x86_64-unknown-linux-musl
+RUN apk add --no-cache gcc file unixodbc-dev unixodbc-static libltdl-static
+ENV PATH=$PATH:/root/.cargo/bin
 
 WORKDIR /app
 ADD . ./

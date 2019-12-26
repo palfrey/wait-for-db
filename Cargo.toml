@@ -5,17 +5,17 @@ authors = ["Tom Parker-Shemilt <palfrey@tevp.net>"]
 edition = "2018"
 
 [dependencies]
-odbc = "0.15"
-odbc-safe = "0.4"
+odbc = "0.16"
+odbc-safe = "0.5"
 odbc-sys = { version= "0.8.2", features=["static"] }
 env_logger = "0.7"
 clap = "2.33"
 failure = { version = "0.1", default-features = false }
 exitcode = "1.1"
-postgres = "*"
+postgres = "0.15"
 
 [dev-dependencies]
-assert_cmd = "0.10"
+assert_cmd = "0.12"
 predicates = "1"
 
 # Settings here are because we care more about size than speed

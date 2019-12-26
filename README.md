@@ -30,6 +30,6 @@ Database support
 Development
 -----------
 To test the Postgres/ODBC support do the following (on OS X):
-1. `docker run -P postgres -d` to get a PostgreSQL server running
+1. `docker run -P -d postgres` to get a PostgreSQL server running
 2. `brew install psqlodbc sqliteodbc`
 3. ``POSTGRES_SERVER=localhost POSTGRES_PORT=32768 POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=`brew --prefix psqlodbc`/lib/psqlodbca.so SQLITE_DRIVER=`brew --prefix sqliteodbc`/lib/libsqlite3odbc-0.9996.dylib cargo test -- --nocapture``

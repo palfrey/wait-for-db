@@ -1,13 +1,12 @@
-use assert_cmd::prelude::*;
+use assert_cmd::Command;
 use predicates::prelude::*;
-use std::process::Command;
 
 extern crate wait_for_db;
 
 #[test]
 #[cfg_attr(postgres_driver = "", ignore)]
 fn command_line_timeout_with_odbc() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::main_binary()?;
+    let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
     cmd.arg("--timeout=1")
         .arg("--mode=odbc")
         .arg(format!(
@@ -27,7 +26,7 @@ fn command_line_timeout_with_odbc() -> Result<(), Box<dyn std::error::Error>> {
 #[test]
 #[cfg_attr(postgres_driver = "", ignore)]
 fn command_line_timeout_with_postgres() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::main_binary()?;
+    let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
     cmd.arg("--timeout=1")
         .arg("--mode=postgres")
         .arg(format!(

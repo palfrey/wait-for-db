@@ -1,7 +1,7 @@
-FROM alpine:edge as builder
+FROM alpine:3.11 as builder
 
-RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing rustup && rustup-init -y --default-host x86_64-unknown-linux-musl
-RUN apk add --no-cache gcc file unixodbc-dev unixodbc-static libltdl-static
+RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing rustup gcc file unixodbc-dev unixodbc-static libltdl-static
+RUN rustup-init -y --default-host x86_64-unknown-linux-musl
 ENV PATH=$PATH:/root/.cargo/bin
 
 WORKDIR /app

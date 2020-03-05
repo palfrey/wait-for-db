@@ -32,7 +32,11 @@ fn main() {
             pg::connect(&opt)
         } {
             Ok(results) => {
-                println!("Success {:?}", results);
+                if opt.sql_query.is_none() {
+                    println!("Success");
+                } else {
+                    println!("Success {:?}", results);
+                }
                 std::process::exit(exitcode::OK);
             }
             Err(dberror) => match dberror.kind {

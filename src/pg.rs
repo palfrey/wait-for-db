@@ -1,45 +1,62 @@
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
-use postgres::{Connection, Error, TlsMode};
+use postgres::{Client, NoTls};
 use std::collections::HashMap;
+use std::error::Error;
 
-impl From<Error> for DbError {
+impl From<&postgres::error::DbError> for DbError {
     #[rustfmt::skip]
-    fn from(item: Error) -> Self {
-        let kind = if item.as_connection().is_some() || item.as_db().and_then(|e| if e.code == postgres::error::SYNTAX_ERROR { Some(()) } else { None }).is_some() {
+    fn from(e: &postgres::error::DbError) -> Self {
+        let kind = if *e.code() == postgres::error::SqlState::SYNTAX_ERROR {
             DbErrorLifetime::Permanent
         } else {
             DbErrorLifetime::Temporary
         };
+        println!("e.code: {:?}", e.code());
         DbError {
             kind: kind,
-            error: DbErrorType::PostgresError { error: item },
+            error: DbErrorType::PostgresError { error: Box::new(e.clone()) },
+        }
+    }
+}
+
+impl From<postgres::error::Error> for DbError {
+    #[rustfmt::skip]
+    fn from(e: postgres::error::Error) -> Self {
+        if let Some(error) = e.source() {
+            if let Some(dberror) = error.downcast_ref::<postgres::error::DbError>() {
+                return dberror.into();
+            }
+        }
+        DbError {
+            kind: DbErrorLifetime::Temporary,
+            error: DbErrorType::PostgresError { error: Box::new(e) },
         }
     }
 }
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
-    let conn = Connection::connect(opts.connection_string.as_str(), TlsMode::None)?;
+    let mut conn = Client::connect(opts.connection_string.as_str(), NoTls)?;
     if let Some(ref sql_query) = opts.sql_query {
-        execute_statement(&conn, sql_query)
+        execute_statement(&mut conn, sql_query)
     } else {
         return Ok(Vec::new());
     }
 }
 
 fn execute_statement<'env>(
-    conn: &postgres::Connection,
+    conn: &mut postgres::Client,
     sql_query: &String,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    let rows = conn.query(&sql_query, &[])?;
-    let cols = rows.columns();
+    let rows = conn.query(sql_query.as_str(), &[])?;
     for row in rows.iter() {
         let mut result: HashMap<String, String> = HashMap::new();
+        let cols = row.columns();
         for i in 0..cols.len() {
             let val = row
-                .get_opt::<usize, String>(i)
-                .unwrap_or(Ok("".to_string()));
-            result.insert(cols[i].name().to_string(), val.unwrap_or("".to_string()));
+                .try_get::<usize, String>(i)
+                .unwrap_or("".to_string());
+            result.insert(cols[i].name().to_string(), val);
         }
         results.push(result);
     }

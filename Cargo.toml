@@ -12,7 +12,7 @@ env_logger = "0.7"
 clap = "2.33"
 failure = { version = "0.1", default-features = false }
 exitcode = "1.1"
-postgres = "0.15"
+postgres = {version = "0.17", default-features = false }
 
 [dev-dependencies]
 assert_cmd = "0.12"

@@ -131,7 +131,7 @@ pub enum DbErrorLifetime {
 #[derive(Debug)]
 pub enum DbErrorType {
     OdbcError { error: DiagnosticRecord },
-    PostgresError { error: postgres::Error },
+    PostgresError { error: Box<dyn std::error::Error> },
 }
 
 #[derive(Debug)]

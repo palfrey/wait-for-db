@@ -1,7 +1,15 @@
 version: "~> 1.0"
 language: rust
 
-cache: cargo
+# Need to cache the whole `.cargo` directory to keep .crates.toml for
+# cargo-update to work
+cache:
+  directories:
+    - /home/travis/.cargo
+
+# But don't cache the cargo registry
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
 
 jobs:
   include:
@@ -38,14 +46,13 @@ jobs:
           tags: true
 
     - os: osx
-      osx_image: xcode11.2 
+      osx_image: xcode11.6
       addons:
         homebrew:
           packages:
           - psqlodbc
           - sqliteodbc
           - postgresql
-          update: true # Workaround for bundle issue https://travis-ci.community/t/macos-build-fails-because-of-homebrew-bundle-unknown-command/7296/13
       env: SQLITE_DRIVER=/usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib POSTGRES_DRIVER=/usr/local/opt/psqlodbc/lib/psqlodbca.so HOMEBREW_NO_INSTALL_CLEANUP=1
       before_script:
         - pg_ctl -D /usr/local/var/postgres start

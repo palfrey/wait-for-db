@@ -1,6 +1,6 @@
 wait-for-db
 ===========
-[![Build Status](https://travis-ci.com/palfrey/wait-for-db.svg?branch=master)](https://travis-ci.com/palfrey/wait-for-db)
+[![Build Status](https://travis-ci.com/palfrey/wait-for-db.svg?branch=main)](https://travis-ci.com/palfrey/wait-for-db)
 [![dependency status](https://deps.rs/repo/github/palfrey/wait-for-db/status.svg)](https://deps.rs/repo/github/palfrey/wait-for-db)
 
 Basically, [wait-for-it](https://github.com/vishnubob/wait-for-it) but for databases.

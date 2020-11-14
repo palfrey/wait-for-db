@@ -476,9 +476,9 @@ checksum = "dec5c5490e13c423d25508b13cd2cc432490043f5ed5b46b61a75857642f4f37"
 
 [[package]]
 name = "odbc-sys"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cba1e5663e6a4c8793318415b714e27f9164ef327a97c9d497e7186e7e41a260"
+checksum = "c01795b2ba1129efcc00eecf0bf251eebff2f087174dcf871cbfc594dea58a52"
 
 [[package]]
 name = "once_cell"
@@ -985,7 +985,7 @@ dependencies = [
  "exitcode",
  "odbc",
  "odbc-safe",
- "odbc-sys 0.14.0",
+ "odbc-sys 0.15.0",
  "postgres",
  "predicates",
 ]

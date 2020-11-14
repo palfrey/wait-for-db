@@ -5,17 +5,17 @@ authors = ["Tom Parker-Shemilt <palfrey@tevp.net>"]
 edition = "2018"
 
 [dependencies]
-odbc = "0.16"
+odbc = "0.17"
 odbc-safe = "0.5"
-odbc-sys = { version= "0.8.2", features=["static"] }
-env_logger = "0.7"
+odbc-sys = { version= "0.14", features=["static"] }
+env_logger = "0.8"
 clap = { version = "2.33", default-features = false }
 failure = { version = "0.1", default-features = false }
 exitcode = "1.1"
-postgres = {version = "0.17", default-features = false }
+postgres = {version = "0.18", default-features = false }
 
 [dev-dependencies]
-assert_cmd = "0.12"
+assert_cmd = "1.0"
 predicates = "1"
 
 # Settings here are because we care more about size than speed

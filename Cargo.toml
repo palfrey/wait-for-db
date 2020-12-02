@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 odbc = "0.17"
 odbc-safe = "0.5"
-odbc-sys = { version= "0.15", features=["static"] }
+odbc-sys = { version= "0.16", features=["static"] }
 env_logger = "0.8"
 clap = { version = "2.33", default-features = false }
 exitcode = "1.1"

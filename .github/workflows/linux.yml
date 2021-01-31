@@ -34,14 +34,21 @@ jobs:
         with:
           command: test
           args: -- --nocapture
+      - uses: actions/cache@v2
+        with:
+          path: |
+            /tmp/.buildx-cache
+          key:
+            buildx-${{ secrets.CACHE_DATE }}-${{ runner.os }}-${{hashFiles('Dockerfile')}}
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1          
+        uses: docker/setup-buildx-action@v1
         with:
-          install: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max        
       - name: Docker build
         run: |
-          docker build --tag wait_for_db:latest .
+          docker buildx build --tag wait_for_db:latest .
       - name: Docker help test
         run: |
           docker run --name wait_for_db wait_for_db --help

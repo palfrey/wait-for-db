@@ -1,0 +1,43 @@
+on: [push, pull_request]
+
+name: macOS
+
+jobs:
+  build_and_test:
+    runs-on: macos-latest
+    steps:
+      - name: Install Homebrew dependencies
+        run: |
+          env HOMEBREW_NO_AUTO_UPDATE=1 brew install psqlodbc sqliteodbc postgresql
+      - name: Create test db/user
+        run: |
+          pg_ctl -D /usr/local/var/postgres start
+          psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
+          createdb -O foo foo
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+      - name: Tests
+        uses: actions-rs/cargo@v1
+        env:
+          SQLITE_DRIVER: /usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib
+          POSTGRES_DRIVER: /usr/local/opt/psqlodbc/lib/psqlodbca.so
+          POSTGRES_SERVER: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USERNAME: foo
+          POSTGRES_PASSWORD: bar
+          RUST_BACKTRACE: 1          
+        with:
+          command: test
+          args: -- --nocapture
+      - name: Build release
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - run: |
+          strip target/release/wait_for_db
+          otool -L target/release/wait_for_db
+          mv target/release/wait_for_db wait-for-db-osx

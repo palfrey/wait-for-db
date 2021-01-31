@@ -1,0 +1,54 @@
+on: [push, pull_request]
+
+name: Linux
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install dependencies
+        run: |
+          # 2.3.6-0.1build1 is hack workaround for Microsoft unixodbc-dev being installed, which has no static files!
+          sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.6-0.1build1 libodbc1=2.3.6-0.1build1 odbcinst1debian2=2.3.6-0.1build1 odbcinst=2.3.6-0.1build1 odbc-postgresql libsqliteodbc postgresql-10
+      - name: Start postgres
+        run: sudo pg_ctlcluster 10 main start
+      - name: Create test db/user
+        run: |
+          sudo -u postgres psql --port 5433 -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+          sudo -u postgres createdb --port 5433 -O foo foo
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions-rs/cargo@v1
+        env:
+          ODBC_SYS_STATIC_PATH: /usr/lib/x86_64-linux-gnu/
+          POSTGRES_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so
+          SQLITE_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so
+          POSTGRES_SERVER: localhost
+          POSTGRES_PORT: 5433
+          POSTGRES_USERNAME: foo
+          POSTGRES_PASSWORD: bar
+          RUST_BACKTRACE: 1
+        with:
+          command: test
+          args: -- --nocapture
+      - uses: actions/cache@v2
+        with:
+          path: |
+            /tmp/.buildx-cache
+          key:
+            buildx-${{ runner.os }}-${{hashFiles('Dockerfile')}}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Docker build
+        run: |
+          docker buildx build --tag wait_for_db:latest --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max --output=type=docker .
+      - name: Docker help test
+        run: |
+          docker run --name wait_for_db wait_for_db --help
+      - name: Docker copy
+        run: |
+          docker cp wait_for_db:/wait_for_db wait-for-db-linux-x86

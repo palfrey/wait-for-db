@@ -139,7 +139,7 @@ mod test {
     #[cfg_attr(postgres_driver = "", ignore)]
     fn test_postgres_with_wrong_server() {
         let err = connect(&Opts::new().connection_string(format!(
-            "Driver={};Server=tevp.net",
+            "Driver={};Server=localhost;Port=9000",
             std::env::var("POSTGRES_DRIVER").unwrap()
         )))
         .unwrap_err();

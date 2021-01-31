@@ -115,7 +115,7 @@ mod test {
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(
-                desc.contains("Driver's SQLAllocHandle on SQL_HANDLE_HENV failed"),
+                desc.contains("State: 01000"), // Also says "file not found", which is wrong, but what unixodbc says for "no symbols" for some reason
                 desc
             );
         }

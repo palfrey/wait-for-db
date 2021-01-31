@@ -16,7 +16,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5   
     steps:
-      - run: sudo apt-get install -y --no-install-recommends unixodbc-dev odbc-postgresql libsqliteodbc postgresql-10    
+      - run: |
+          sudo apt-get install -y --no-install-recommends unixodbc-dev odbc-postgresql libsqliteodbc postgresql-10
+          sudo pg_ctlcluster 10 main start
+          sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+          sudo -u postgres createdb -O foo foo
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -35,7 +39,7 @@ jobs:
           SQLITE_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so
         with:
           command: test
-          args: -- --nocapture
+          args: --verbose -- --nocapture
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1          

@@ -23,8 +23,8 @@ jobs:
         run: sudo pg_ctlcluster 10 main start
       - name: Create test db/user
         run: |
-          sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
-          sudo -u postgres createdb -O foo foo
+          sudo -u postgres psql --port 5433 -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+          sudo -u postgres createdb --port 5433 -O foo foo
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -40,6 +40,7 @@ jobs:
         env:
           ODBC_SYS_STATIC_PATH: /usr/lib/x86_64-linux-gnu/
           POSTGRES_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so
+          POSTGRES_PORT: 5433
           SQLITE_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so
         with:
           command: test

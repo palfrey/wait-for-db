@@ -1,0 +1,55 @@
+on: [push, pull_request]
+
+name: macOS
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:10.15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5   
+    steps:
+      - name: Configure Homebrew cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/Library/Caches/Homebrew/foo--*
+            ~/Library/Caches/Homebrew/downloads/*--foo-*
+          key: brew-${{ hashFiles('.github/brew-formulae') }}
+          restore-keys: brew-
+      - name: Install Homebrew dependencies
+        run: |
+          env HOMEBREW_NO_AUTO_UPDATE=1 brew install psqlodbc sqliteodbc postgresql    
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}          
+      - uses: actions-rs/cargo@v1
+        env:
+          SQLITE_DRIVER: /usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib
+          POSTGRES_DRIVER: /usr/local/opt/psqlodbc/lib/psqlodbca.so
+        with:
+          command: test
+          args: -- --nocapture
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - run: |
+          strip target/release/wait_for_db
+          otool -L target/release/wait_for_db
+          mv target/release/wait_for_db wait-for-db-osx

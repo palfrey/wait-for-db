@@ -32,6 +32,11 @@ jobs:
         env:
           SQLITE_DRIVER: /usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib
           POSTGRES_DRIVER: /usr/local/opt/psqlodbc/lib/psqlodbca.so
+          POSTGRES_SERVER: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USERNAME: foo
+          POSTGRES_PASSWORD: bar
+          RUST_BACKTRACE: 1          
         with:
           command: test
           args: -- --nocapture

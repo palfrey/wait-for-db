@@ -33,7 +33,7 @@ jobs:
           RUST_BACKTRACE: 1
         with:
           command: test
-          args: --verbose -- --nocapture
+          args: -- --nocapture
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1          

@@ -41,7 +41,7 @@ jobs:
           install: true
       - name: Docker build
         run: |
-          docker build . -t wait_for_db
+          docker build --tag wait_for_db:latest .
       - name: Docker help test
         run: |
           docker run --name wait_for_db wait_for_db --help

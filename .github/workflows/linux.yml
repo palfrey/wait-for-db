@@ -16,9 +16,13 @@ jobs:
           --health-timeout 5s
           --health-retries 5   
     steps:
-      - run: |
+      - name: Install dependencies
+        run: |
           sudo apt-get install -y --no-install-recommends unixodbc-dev odbc-postgresql libsqliteodbc postgresql-10
-          sudo pg_ctlcluster 10 main start
+      - name: Start postgres
+        run: sudo pg_ctlcluster 10 main start
+      - name: Create test db/user
+      - run: |
           sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
           sudo -u postgres createdb -O foo foo
       - uses: actions/checkout@v2

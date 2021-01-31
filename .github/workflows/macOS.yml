@@ -38,6 +38,10 @@ jobs:
           command: build
           args: --release
       - run: |
+          if otool -L target/release/wait_for_db | grep -q /usr/local; then
+            echo Found local non-static refs!
+            otool -L target/release/wait_for_db
+            exit 1
+          fi
           strip target/release/wait_for_db
-          otool -L target/release/wait_for_db
           mv target/release/wait_for_db wait-for-db-osx

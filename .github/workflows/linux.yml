@@ -5,16 +5,6 @@ name: Linux
 jobs:
   build_and_test:
     runs-on: ubuntu-20.04
-    services:
-      postgres:
-        image: postgres:10.15
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - name: Install dependencies
         run: |
@@ -23,8 +13,8 @@ jobs:
         run: sudo pg_ctlcluster 10 main start
       - name: Create test db/user
         run: |
-          sudo -u postgres psql --port 5433 -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
-          sudo -u postgres createdb --port 5433 -O foo foo
+          sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
+          sudo -u postgres createdb -O foo foo
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -42,7 +32,7 @@ jobs:
           POSTGRES_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so
           SQLITE_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so
           POSTGRES_SERVER: localhost
-          POSTGRES_PORT: 5433
+          POSTGRES_PORT: 5432
           POSTGRES_USERNAME: foo
           POSTGRES_PASSWORD: bar
           RUST_BACKTRACE: 1

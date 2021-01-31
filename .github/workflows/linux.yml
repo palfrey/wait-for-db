@@ -39,16 +39,13 @@ jobs:
           path: |
             /tmp/.buildx-cache
           key:
-            buildx-${{ secrets.CACHE_DATE }}-${{ runner.os }}-${{hashFiles('Dockerfile')}}
+            buildx-${{ runner.os }}-${{hashFiles('Dockerfile')}}
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
-        with:
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max        
       - name: Docker build
         run: |
-          docker buildx build --tag wait_for_db:latest .
+          docker buildx build --tag wait_for_db:latest --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max --output=type=docker .
       - name: Docker help test
         run: |
           docker run --name wait_for_db wait_for_db --help

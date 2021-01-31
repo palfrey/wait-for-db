@@ -22,7 +22,7 @@ jobs:
       - name: Start postgres
         run: sudo pg_ctlcluster 10 main start
       - name: Create test db/user
-      - run: |
+        run: |
           sudo -u postgres psql -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
           sudo -u postgres createdb -O foo foo
       - uses: actions/checkout@v2

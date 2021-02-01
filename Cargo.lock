@@ -450,7 +450,7 @@ dependencies = [
  "encoding_rs",
  "log",
  "odbc-safe",
- "odbc-sys",
+ "odbc-sys 0.8.2",
 ]
 
 [[package]]
@@ -459,7 +459,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f45de02ae2d07b38a7ef0e64139d971b1590d834c2ec089132d0eb49678e7e5a"
 dependencies = [
- "odbc-sys",
+ "odbc-sys 0.8.2",
 ]
 
 [[package]]
@@ -467,6 +467,12 @@ name = "odbc-sys"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dec5c5490e13c423d25508b13cd2cc432490043f5ed5b46b61a75857642f4f37"
+
+[[package]]
+name = "odbc-sys"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "932b876b4927a2c403aeb72c57336faf4349876f6f9d581dc9863b6cc02ae912"
 
 [[package]]
 name = "once_cell"
@@ -970,7 +976,7 @@ dependencies = [
  "exitcode",
  "odbc",
  "odbc-safe",
- "odbc-sys",
+ "odbc-sys 0.17.0",
  "postgres",
  "predicates",
 ]

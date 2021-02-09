@@ -14,7 +14,7 @@ impl From<Error> for DbError {
                 .unwrap()
                 .trim_matches(char::from(0))
                 .to_string();
-            println!("State: '{}'", state.escape_unicode().to_string());
+
             let kind = match state.as_str() {
                 "IM002"  // no driver
                 | "01000" // no driver at path
@@ -62,7 +62,7 @@ fn execute_statement<'env>(
                     nullability: Nullability::Unknown,
                 };
                 cursor.describe_col(i, &mut cd)?;
-                cols.insert(i.into(), cd.name_to_string().unwrap());
+                cols.insert((i - 1).into(), cd.name_to_string().unwrap());
             }
             let mut buffers = TextRowSet::for_cursor(BATCH_SIZE, &cursor)?;
             let mut row_set_cursor = cursor.bind_buffer(&mut buffers)?;

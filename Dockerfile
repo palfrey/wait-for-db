@@ -1,6 +1,6 @@
-FROM alpine:3.11 as builder
+FROM alpine:3.12 as builder
 
-RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community rustup gcc file unixodbc-dev unixodbc-static libltdl-static musl-dev
+RUN apk add --no-cache rustup gcc file unixodbc-dev unixodbc-static libltdl-static musl-dev
 RUN rustup-init -y --default-host x86_64-unknown-linux-musl --profile minimal
 ENV PATH=$PATH:/root/.cargo/bin
 

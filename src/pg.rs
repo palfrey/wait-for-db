@@ -4,17 +4,17 @@ use std::collections::HashMap;
 use std::error::Error;
 
 impl From<&postgres::error::DbError> for DbError {
-    #[rustfmt::skip]
     fn from(e: &postgres::error::DbError) -> Self {
         let kind = if *e.code() == postgres::error::SqlState::SYNTAX_ERROR {
             DbErrorLifetime::Permanent
         } else {
             DbErrorLifetime::Temporary
         };
-        println!("e.code: {:?}", e.code());
         DbError {
             kind: kind,
-            error: DbErrorType::PostgresError { error: Box::new(e.clone()) },
+            error: DbErrorType::PostgresError {
+                error: Box::new(e.clone()),
+            },
         }
     }
 }
@@ -53,9 +53,7 @@ fn execute_statement<'env>(
         let mut result: HashMap<String, String> = HashMap::new();
         let cols = row.columns();
         for i in 0..cols.len() {
-            let val = row
-                .try_get::<usize, String>(i)
-                .unwrap_or("".to_string());
+            let val = row.try_get::<usize, String>(i).unwrap_or("".to_string());
             result.insert(cols[i].name().to_string(), val);
         }
         results.push(result);

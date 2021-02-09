@@ -53,9 +53,7 @@ fn execute_statement<'env>(
         let mut result: HashMap<String, String> = HashMap::new();
         let cols = row.columns();
         for i in 0..cols.len() {
-            let val = row
-                .try_get::<usize, String>(i)
-                .unwrap_or("".to_string());
+            let val = row.try_get::<usize, String>(i).unwrap_or("".to_string());
             result.insert(cols[i].name().to_string(), val);
         }
         results.push(result);

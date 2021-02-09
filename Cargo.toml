@@ -5,9 +5,8 @@ authors = ["Tom Parker-Shemilt <palfrey@tevp.net>"]
 edition = "2018"
 
 [dependencies]
-odbc = "0.17"
-odbc-safe = "0.5"
-odbc-sys = { version= "0.8", features=["static"] }
+odbc-api = "0.14"
+odbc-sys = { version= "0.17", features=["static"] }
 env_logger = "0.8"
 clap = { version = "2.33", default-features = false }
 exitcode = "1.1"

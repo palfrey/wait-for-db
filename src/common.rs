@@ -1,5 +1,5 @@
 use clap::{App, Arg};
-use odbc::DiagnosticRecord;
+use odbc_api::handles::Record;
 
 #[derive(PartialEq)]
 pub enum DbMode {
@@ -130,7 +130,7 @@ pub enum DbErrorLifetime {
 
 #[derive(Debug)]
 pub enum DbErrorType {
-    OdbcError { error: DiagnosticRecord },
+    OdbcError { error: Record },
     PostgresError { error: Box<dyn std::error::Error> },
 }
 

@@ -4,17 +4,17 @@ use std::collections::HashMap;
 use std::error::Error;
 
 impl From<&postgres::error::DbError> for DbError {
-    #[rustfmt::skip]
     fn from(e: &postgres::error::DbError) -> Self {
         let kind = if *e.code() == postgres::error::SqlState::SYNTAX_ERROR {
             DbErrorLifetime::Permanent
         } else {
             DbErrorLifetime::Temporary
         };
-        println!("e.code: {:?}", e.code());
         DbError {
             kind: kind,
-            error: DbErrorType::PostgresError { error: Box::new(e.clone()) },
+            error: DbErrorType::PostgresError {
+                error: Box::new(e.clone()),
+            },
         }
     }
 }

@@ -1,34 +1,41 @@
-use odbc::{create_environment_v3, Connection, Data, DiagnosticRecord, NoData, Statement};
-use std::ffi::CStr;
+use odbc_api::{
+    buffers::TextRowSet, handles::Error, ColumnDescription, Connection, Cursor, DataType,
+    Environment, Nullability, U16String,
+};
 
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
 use std::collections::HashMap;
 
-impl From<DiagnosticRecord> for DbError {
-    #[rustfmt::skip]
-    fn from(item: DiagnosticRecord) -> Self {
-        let state = CStr::from_bytes_with_nul(item.get_raw_state())
-            .unwrap()
-            .to_str()
-            .unwrap();
-        let kind = if state == "IM002"  // no driver
-                    || state == "01000" // no driver at path
-                    || state == "IM004" // bad driver
-                    || state == "42601" // bad query
-        {
-            DbErrorLifetime::Permanent
-        } else {
-            DbErrorLifetime::Temporary
-        };
-        DbError {
-            kind: kind,
-            error: DbErrorType::OdbcError { error: item },
+impl From<Error> for DbError {
+    fn from(item: Error) -> Self {
+        if let Error::Diagnostics(record) = item {
+            let state = U16String::from_vec(record.state)
+                .to_string()
+                .unwrap()
+                .trim_matches(char::from(0))
+                .to_string();
+
+            let kind = match state.as_str() {
+                "IM002"  // no driver
+                | "01000" // no driver at path
+                | "IM004" // bad driver
+                | "42601" // bad query                
+                => DbErrorLifetime::Permanent,
+                _ => DbErrorLifetime::Temporary,
+            };
+            return DbError {
+                kind,
+                error: DbErrorType::OdbcError { error: record },
+            };
         }
+        unimplemented!()
     }
 }
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
-    let env = create_environment_v3().map_err(|e| e.unwrap())?;
+    // We know this is going to be the only ODBC environment in the entire process, so this is
+    // safe.
+    let env = unsafe { Environment::new() }?;
     let conn = env.connect_with_connection_string(&opts.connection_string)?;
     if let Some(ref sql_query) = opts.sql_query {
         execute_statement(&conn, sql_query)
@@ -37,35 +44,51 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
     }
 }
 
+const BATCH_SIZE: u32 = 100000;
+
 fn execute_statement<'env>(
-    conn: &Connection<'env, odbc_safe::AutocommitOn>,
+    conn: &Connection<'env>,
     sql_query: &String,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
-    let stmt = Statement::with_parent(conn)?;
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    match stmt.exec_direct(&sql_query)? {
-        Data(mut stmt) => {
-            let col_count = stmt.num_result_cols()? as u16;
-            let mut cols: HashMap<u16, odbc::ColumnDescriptor> = HashMap::new();
+    match conn.execute(&sql_query, ())? {
+        Some(cursor) => {
+            let col_count = cursor.num_result_cols()? as u16;
+            let mut cols: HashMap<usize, String> = HashMap::new();
             for i in 1..(col_count + 1) {
-                cols.insert(i, stmt.describe_col(i)?);
+                let mut cd = ColumnDescription {
+                    name: Vec::new(),
+                    data_type: DataType::Unknown,
+                    nullability: Nullability::Unknown,
+                };
+                cursor.describe_col(i, &mut cd)?;
+                cols.insert((i - 1).into(), cd.name_to_string().unwrap());
             }
-            while let Some(mut cursor) = stmt.fetch()? {
-                let mut result: HashMap<String, String> = HashMap::new();
-                for i in 1..(col_count + 1) {
-                    match cursor.get_data::<String>(i as u16)? {
-                        Some(val) => {
-                            result.insert(cols[&i].name.clone(), val);
-                        }
-                        None => {
-                            result.insert(cols[&i].name.clone(), "".to_string());
+            let mut buffers = TextRowSet::for_cursor(BATCH_SIZE, &cursor)?;
+            let mut row_set_cursor = cursor.bind_buffer(&mut buffers)?;
+            while let Some(batch) = row_set_cursor.fetch()? {
+                // Within a batch, iterate over every row
+                for row_index in 0..batch.num_rows() {
+                    let mut result: HashMap<String, String> = HashMap::new();
+                    for col_index in 0..batch.num_cols() {
+                        let item = batch.at(col_index, row_index);
+                        match item {
+                            Some(val) => {
+                                result.insert(
+                                    cols[&col_index].clone(),
+                                    val.to_string_lossy().into_owned(),
+                                );
+                            }
+                            None => {
+                                result.insert(cols[&col_index].clone(), "".to_string());
+                            }
                         }
                     }
+                    results.push(result);
                 }
-                results.push(result);
             }
         }
-        NoData(_) => println!("Query executed, no data returned"),
+        None => println!("Query executed, no data returned"),
     }
 
     Ok(results)

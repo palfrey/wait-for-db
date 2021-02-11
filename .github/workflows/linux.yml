@@ -19,9 +19,17 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
+          components: rustfmt
       - uses: Swatinem/rust-cache@v1
-      - uses: actions-rs/cargo@v1
+      - name: Check formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --check
+      - name: Build and test
+        uses: actions-rs/cargo@v1
         env:
           ODBC_SYS_STATIC_PATH: /usr/lib/x86_64-linux-gnu/
           POSTGRES_DRIVER: /usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so

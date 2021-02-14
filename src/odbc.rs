@@ -76,7 +76,7 @@ fn execute_statement<'env>(
                             Some(val) => {
                                 result.insert(
                                     cols[&col_index].clone(),
-                                    val.to_string_lossy().into_owned(),
+                                    std::str::from_utf8(val).unwrap().to_string(),
                                 );
                             }
                             None => {

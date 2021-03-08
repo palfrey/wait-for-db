@@ -18,7 +18,7 @@ Usage
 Options
 -------
 * `-m/--mode`: `postgres` or `odbc`
-* `-c/--connection-string`: Mode-appropriate connection string. So `postgresql://<username>:<pasword>@<host>:<port>` or `Driver=<path to driver>;<various ODBC options>` depending on your driver
+* `-c/--connection-string`: Mode-appropriate connection string. So `postgresql://<username>:<password>@<host>:<port>` or `Driver=<path to driver>;<various ODBC options>` depending on your driver
 * `-s/--sql-query`: SQL query to run once connected. It should return at least one row, or will be regarded as failing. Default: no query, just be regarded as succeeding the moment it connects.
 * `-p/--pause`: Pause between attempts for non-permanent failures. Default is 3 seconds
 * `-t/--timeout`: Time to wait before failing entirely. Default is wait forever.

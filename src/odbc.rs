@@ -64,7 +64,7 @@ fn execute_statement<'env>(
                 cursor.describe_col(i, &mut cd)?;
                 cols.insert((i - 1).into(), cd.name_to_string().unwrap());
             }
-            let mut buffers = TextRowSet::for_cursor(BATCH_SIZE, &cursor)?;
+            let mut buffers = TextRowSet::for_cursor(BATCH_SIZE, &cursor, None)?;
             let mut row_set_cursor = cursor.bind_buffer(&mut buffers)?;
             while let Some(batch) = row_set_cursor.fetch()? {
                 // Within a batch, iterate over every row

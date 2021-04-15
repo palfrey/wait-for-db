@@ -2,7 +2,6 @@ wait-for-db
 ===========
 [![Linux](https://github.com/palfrey/wait-for-db/workflows/Linux/badge.svg)](https://github.com/palfrey/wait-for-db/actions?query=workflow%3ALinux)
 [![macOS](https://github.com/palfrey/wait-for-db/workflows/macOS/badge.svg)](https://github.com/palfrey/wait-for-db/actions?query=workflow%3AmacOS)
-[![dependency status](https://deps.rs/repo/github/palfrey/wait-for-db/status.svg)](https://deps.rs/repo/github/palfrey/wait-for-db)
 
 Basically, [wait-for-it](https://github.com/vishnubob/wait-for-it) but for databases.
 

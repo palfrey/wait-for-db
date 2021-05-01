@@ -23,10 +23,6 @@ jobs:
           # 2.3.6-0.1build1 is hack workaround for Microsoft unixodbc-dev being installed, which has no static files!
           sudo apt-get update
           sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.6-0.1build1 libodbc1=2.3.6-0.1build1 odbcinst1debian2=2.3.6-0.1build1 odbcinst=2.3.6-0.1build1 odbc-postgresql libsqliteodbc
-      - name: Create test db/user
-        run: |
-          sudo -u postgres psql --port 5432 -c "CREATE USER foo WITH PASSWORD 'bar';" -U postgres
-          sudo -u postgres createdb --port 5432 -O foo foo
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:

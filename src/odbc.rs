@@ -123,7 +123,11 @@ mod test {
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
-            assert!(desc.contains("Can't open lib 'foo' : file not found"), desc);
+            assert!(
+                desc.contains("Can't open lib 'foo' : file not found"),
+                "{}",
+                desc
+            );
         }
     }
 
@@ -140,6 +144,7 @@ mod test {
             assert!(
                 desc.contains("State: 01000")  // Also says "file not found", which is wrong, but what unixodbc says for "no symbols" for some reason
                  || desc.contains("Driver's SQLAllocHandle on SQL_HANDLE_HENV failed"), // Right error message, but which one turns up depends on the odbc version
+                "{}",
                 desc
             );
         }
@@ -172,6 +177,7 @@ mod test {
             let desc = format!("{}", error);
             assert!(
                 desc.contains("could not connect to server: Connection refused"),
+                "{}",
                 desc
             );
         }
@@ -202,6 +208,7 @@ mod test {
             let desc = format!("{}", error);
             assert!(
                 desc.contains("ERROR: syntax error at or near \"foobar\""),
+                "{}",
                 desc
             );
         }

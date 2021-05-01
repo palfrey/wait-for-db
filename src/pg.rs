@@ -87,6 +87,7 @@ mod test {
             let desc = format!("{}", error);
             assert!(
                 desc.contains("could not connect to server: No such file or directory"),
+                "{}",
                 desc
             );
         }
@@ -117,6 +118,7 @@ mod test {
             let desc = format!("{}", error);
             assert!(
                 desc.contains("ERROR: syntax error at or near \"foobar\""),
+                "{}",
                 desc
             );
         }

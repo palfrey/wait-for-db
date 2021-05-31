@@ -33,7 +33,6 @@ impl From<postgres::error::Error> for DbError {
         let dump = format!("{:?}", e);
         let kind_re = Regex::new(r"kind: ([A-Za-z]+)").unwrap();
         let lifetime = if let Some(captures) = kind_re.captures(&dump) {
-            println!("Captures: {:?}", captures);
             match &captures[1] {
                 "ConfigParse" => DbErrorLifetime::Permanent,
                 _ => DbErrorLifetime::Temporary

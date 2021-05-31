@@ -1,5 +1,6 @@
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
 use postgres::{Client, NoTls};
+use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
 
@@ -27,8 +28,21 @@ impl From<postgres::error::Error> for DbError {
                 return dberror.into();
             }
         }
+
+        // FIXME: Hack because https://github.com/sfackler/rust-postgres/issues/583
+        let dump = format!("{:?}", e);
+        let kind_re = Regex::new(r"kind: ([A-Za-z]+)").unwrap();
+        let lifetime = if let Some(captures) = kind_re.captures(&dump) {
+            match &captures[1] {
+                "ConfigParse" => DbErrorLifetime::Permanent,
+                _ => DbErrorLifetime::Temporary
+            }
+        } else {
+            DbErrorLifetime::Temporary
+        };
+
         DbError {
-            kind: DbErrorLifetime::Temporary,
+            kind: lifetime,
             error: DbErrorType::PostgresError { error: Box::new(e) },
         }
     }
@@ -79,7 +93,6 @@ mod test {
     use super::*;
 
     #[test]
-    #[cfg_attr(postgres_driver = "", ignore)]
     fn test_postgres_with_no_server() {
         let err = connect(&Opts::new().connection_string("postgresql://")).unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Temporary, "{:?}", err);
@@ -91,6 +104,13 @@ mod test {
                 desc
             );
         }
+    }
+
+    #[test]
+    fn test_postgres_with_bad_url() {
+        let err = connect(&Opts::new().connection_string("postgresql://test:test@localhost:port"))
+            .unwrap_err();
+        assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
     }
 
     #[test]

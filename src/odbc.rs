@@ -40,7 +40,7 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
     if let Some(ref sql_query) = opts.sql_query {
         execute_statement(&conn, sql_query)
     } else {
-        return Ok(Vec::new());
+        Ok(Vec::new())
     }
 }
 
@@ -48,10 +48,10 @@ const BATCH_SIZE: u32 = 100000;
 
 fn execute_statement<'env>(
     conn: &Connection<'env>,
-    sql_query: &String,
+    sql_query: &str,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    match conn.execute(&sql_query, ())? {
+    match conn.execute(sql_query, ())? {
         Some(cursor) => {
             let col_count = cursor.num_result_cols()? as u16;
             let mut cols: HashMap<usize, String> = HashMap::new();

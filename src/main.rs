@@ -10,7 +10,7 @@ use wait_for_db::pg;
 fn main() {
     let opt = common::parse_args();
     Builder::new()
-        .parse_filters(&env::var("WAIT_DB_LOG").unwrap_or("odbc=off".to_string()))
+        .parse_filters(&env::var("WAIT_DB_LOG").unwrap_or_else(|_| "odbc=off".to_string()))
         .init();
 
     if opt.pause_seconds == 0 {
@@ -18,12 +18,7 @@ fn main() {
         std::process::exit(exitcode::USAGE);
     }
 
-    let timeout = if let Some(val) = opt.timeout_seconds {
-        Some(Duration::from_secs(val))
-    } else {
-        None
-    };
-
+    let timeout = opt.timeout_seconds.map(Duration::from_secs);
     let start = Instant::now();
     while timeout.is_none() || start.elapsed() < timeout.unwrap() {
         match if opt.mode == common::DbMode::Odbc {

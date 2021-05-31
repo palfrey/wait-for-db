@@ -78,16 +78,14 @@ pub fn parse_args() -> Opts {
     Opts {
         mode: DbMode::from_str(matches.value_of("mode").unwrap()),
         connection_string: matches.value_of("connection-string").unwrap().to_string(),
-        sql_query: matches
-            .value_of("sql-query")
-            .and_then(|s| Some(s.to_string())),
+        sql_query: matches.value_of("sql-query").map(|s| s.to_string()),
         timeout_seconds: matches
             .value_of("timeout")
-            .and_then(|s| u64::from_str_radix(s, 10).ok()),
+            .and_then(|s| s.parse::<u64>().ok()),
         quiet: matches.is_present("quiet"),
         pause_seconds: matches
             .value_of("pause")
-            .and_then(|s| u64::from_str_radix(s, 10).ok())
+            .and_then(|s| s.parse::<u64>().ok())
             .unwrap(),
     }
 }

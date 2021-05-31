@@ -28,13 +28,17 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-          components: rustfmt
+          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v1
       - name: Check formatting
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: -- --check
+      - name: Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
       - name: Build and test
         uses: actions-rs/cargo@v1
         env:

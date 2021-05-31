@@ -12,7 +12,7 @@ impl From<&postgres::error::DbError> for DbError {
             DbErrorLifetime::Temporary
         };
         DbError {
-            kind: kind,
+            kind,
             error: DbErrorType::PostgresError {
                 error: Box::new(e.clone()),
             },
@@ -53,22 +53,24 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
     if let Some(ref sql_query) = opts.sql_query {
         execute_statement(&mut conn, sql_query)
     } else {
-        return Ok(Vec::new());
+        Ok(Vec::new())
     }
 }
 
-fn execute_statement<'env>(
+fn execute_statement(
     conn: &mut postgres::Client,
-    sql_query: &String,
+    sql_query: &str,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    let rows = conn.query(sql_query.as_str(), &[])?;
+    let rows = conn.query(sql_query, &[])?;
     for row in rows.iter() {
         let mut result: HashMap<String, String> = HashMap::new();
         let cols = row.columns();
-        for i in 0..cols.len() {
-            let val = row.try_get::<usize, String>(i).unwrap_or("".to_string());
-            result.insert(cols[i].name().to_string(), val);
+        for (i, col) in cols.iter().enumerate() {
+            let val = row
+                .try_get::<usize, String>(i)
+                .unwrap_or_else(|_| "".to_string());
+            result.insert(col.name().to_string(), val);
         }
         results.push(result);
     }

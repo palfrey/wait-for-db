@@ -5,24 +5,14 @@ name: Linux
 jobs:
   build_and_test:
     runs-on: ubuntu-20.04
-    services:    
-      postgres:
-        image: postgres:10
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432    
     steps:
       - name: Install dependencies
         run: |
           # 2.3.6-0.1build1 is hack workaround for Microsoft unixodbc-dev being installed, which has no static files!
-          sudo apt-get update
-          sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.6-0.1build1 libodbc1=2.3.6-0.1build1 odbcinst1debian2=2.3.6-0.1build1 odbcinst=2.3.6-0.1build1 odbc-postgresql libsqliteodbc
+          apt-get update
+          DEBIAN_FRONTEND="noninteractive" apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.6-0.1build1 libodbc1=2.3.6-0.1build1 odbcinst1debian2=2.3.6-0.1build1 odbcinst=2.3.6-0.1build1 odbc-postgresql libsqliteodbc postgresql
+          pg_ctlcluster 12 main start || true
+          pg_lsclusters
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:

@@ -13,6 +13,8 @@ clap = { version = "2.33", default-features = false }
 exitcode = "1.1"
 postgres = {version = "0.19", default-features = false }
 regex = {version="1", default-features = false }
+postgres-native-tls = "0.5"
+native-tls = "0.2"
 
 [dev-dependencies]
 assert_cmd = "1.0"

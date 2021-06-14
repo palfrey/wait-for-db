@@ -13,6 +13,7 @@ jobs:
           DEBIAN_FRONTEND="noninteractive" sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.6-0.1build1 libodbc1=2.3.6-0.1build1 odbcinst1debian2=2.3.6-0.1build1 odbcinst=2.3.6-0.1build1 odbc-postgresql libsqliteodbc postgresql
           sudo pg_ctlcluster 13 main start || true
           sudo pg_lsclusters
+          sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:

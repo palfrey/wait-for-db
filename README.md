@@ -1,7 +1,6 @@
 wait-for-db
 ===========
 [![Linux](https://github.com/palfrey/wait-for-db/workflows/Linux/badge.svg)](https://github.com/palfrey/wait-for-db/actions?query=workflow%3ALinux)
-[![macOS](https://github.com/palfrey/wait-for-db/workflows/macOS/badge.svg)](https://github.com/palfrey/wait-for-db/actions?query=workflow%3AmacOS)
 
 Basically, [wait-for-it](https://github.com/vishnubob/wait-for-it) but for databases.
 

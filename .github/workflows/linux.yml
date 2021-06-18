@@ -64,6 +64,7 @@ jobs:
         run: |
           docker cp wait_for_db:/wait_for_db wait-for-db-linux-x86
       - name: ldd check
+        run: |
           ldd wait-for-db-linux-x86 | grep -v /lib/ld-musl
           retVal=$?
           if [ $retVal -ne 0 ]; then

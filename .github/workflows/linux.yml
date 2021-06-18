@@ -67,7 +67,7 @@ jobs:
         run: |
           ldd wait-for-db-linux-x86 | grep -v /lib/ld-musl
           retVal=$?
-          if [ $retVal -ne 0 ]; then
+          if [ $retVal -ne 1 ]; then
             echo Found local non-static refs!            
             exit 1
           fi

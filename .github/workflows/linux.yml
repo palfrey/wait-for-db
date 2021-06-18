@@ -63,3 +63,12 @@ jobs:
       - name: Docker copy
         run: |
           docker cp wait_for_db:/wait_for_db wait-for-db-linux-x86
+      - name: ldd check
+        run: |
+          ldd wait-for-db-linux-x86 | grep "statically linked"
+          retVal=$?
+          if [ $retVal -ne 0 ]; then
+            ldd wait-for-db-linux-x86
+            echo Found local non-static refs!            
+            exit 1
+          fi

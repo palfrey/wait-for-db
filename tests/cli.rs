@@ -31,7 +31,7 @@ fn command_line_timeout_with_postgres() -> Result<(), Box<dyn std::error::Error>
         .arg("--mode=postgres")
         .arg(format!(
             "--connection-string={}",
-            wait_for_db::pg::postgres_connect()
+            wait_for_db::pg::postgres_connect("disable")
         ))
         .arg("--sql-query=select 1 from foo");
     cmd.assert().failure().stdout(

@@ -1,5 +1,7 @@
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
-use postgres::{Client, NoTls};
+use native_tls::TlsConnector;
+use postgres::Client;
+use postgres_native_tls::MakeTlsConnector;
 use regex::Regex;
 use std::collections::HashMap;
 use std::error::Error;
@@ -49,7 +51,12 @@ impl From<postgres::error::Error> for DbError {
 }
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
-    let mut conn = Client::connect(opts.connection_string.as_str(), NoTls)?;
+    let tls_connector = TlsConnector::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+    let connector = MakeTlsConnector::new(tls_connector);
+    let mut conn = Client::connect(opts.connection_string.as_str(), connector)?;
     if let Some(ref sql_query) = opts.sql_query {
         execute_statement(&mut conn, sql_query)
     } else {
@@ -80,13 +87,14 @@ fn execute_statement(
 
 // only for tests
 #[doc(hidden)]
-pub fn postgres_connect() -> String {
+pub fn postgres_connect(sslmode: &str) -> String {
     format!(
-        "postgresql://{}:{}@{}:{}",
+        "postgresql://{}:{}@{}:{}?sslmode={}",
         std::env::var("POSTGRES_USERNAME").unwrap(),
         std::env::var("POSTGRES_PASSWORD").unwrap(),
         std::env::var("POSTGRES_SERVER").unwrap(),
         std::env::var("POSTGRES_PORT").unwrap(),
+        sslmode
     )
 }
 
@@ -120,7 +128,18 @@ mod test {
     fn test_postgres_with_server() {
         connect(
             &Opts::new()
-                .connection_string(postgres_connect())
+                .connection_string(postgres_connect("disable"))
+                .sql_query("SHOW IS_SUPERUSER"),
+        )
+        .unwrap();
+    }
+
+    #[test]
+    #[cfg_attr(postgres_driver = "", ignore)]
+    fn test_postgres_with_secure_server() {
+        connect(
+            &Opts::new()
+                .connection_string(postgres_connect("require"))
                 .sql_query("SHOW IS_SUPERUSER"),
         )
         .unwrap();
@@ -131,7 +150,7 @@ mod test {
     fn test_postgres_with_bad_query() {
         let err = connect(
             &Opts::new()
-                .connection_string(postgres_connect())
+                .connection_string(postgres_connect("disable"))
                 .sql_query("foobar"),
         )
         .unwrap_err();

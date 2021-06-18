@@ -31,12 +31,42 @@ Development
 -----------
 To test the Postgres/ODBC support do the following
 
+1. Generate a server.key and server.crt (so we can test TLS links)
+
+```
+openssl req -new -text -passout pass:abcd -subj /CN=localhost -out server.req
+openssl rsa -in privkey.pem -passin pass:abcd -out server.key
+openssl req -x509 -in server.req -text -key server.key -out server.crt
+```
+
+2. Set postgres (alpine) user as owner of the server.key and permissions to 600
+
+```
+sudo chown 0:70 server.key
+sudo chmod 640 server.key
+```
+
+3. Start a postgres docker container, mapping the .key and .crt into the image.
+
+```
+docker run -p 5432 \
+  -v "$PWD/server.crt:/var/lib/postgresql/server.crt:ro" \
+  -v "$PWD/server.key:/var/lib/postgresql/server.key:ro" \
+  -e POSTGRES_HOST_AUTH_METHOD=trust \
+  postgres:11-alpine \
+  -c ssl=on \
+  -c ssl_cert_file=/var/lib/postgresql/server.crt \
+  -c ssl_key_file=/var/lib/postgresql/server.key
+```
+
+4. Find the port exported by the docker container and export it as `POSTGRES_PORT` e.g. `export POSTGRES_PORT=32768`
+
 On macOS:
-1. `docker run -P -d postgres:12.1` to get a PostgreSQL server running
-2. `brew install psqlodbc sqliteodbc`
-3. ``POSTGRES_SERVER=localhost POSTGRES_PORT=32768 POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=`brew --prefix psqlodbc`/lib/psqlodbca.so SQLITE_DRIVER=`brew --prefix sqliteodbc`/lib/libsqlite3odbc-0.9996.dylib cargo test -- --nocapture``
+
+4. `brew install psqlodbc sqliteodbc`
+5. ``POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=`brew --prefix psqlodbc`/lib/psqlodbca.so SQLITE_DRIVER=`brew --prefix sqliteodbc`/lib/libsqlite3odbc-0.9996.dylib cargo test -- --nocapture``
 
 On Debian
-1. `docker run -P -d postgres:12.1` to get a PostgreSQL server running
-2. `sudo apt-get install odbc-postgresql libsqliteodbc`
-3. ``POSTGRES_SERVER=localhost POSTGRES_PORT=49179 POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc-0.9996.so cargo test -- --nocapture``
+
+4. `sudo apt-get install odbc-postgresql libsqliteodbc`
+5. ``POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc-0.9996.so cargo test -- --nocapture``

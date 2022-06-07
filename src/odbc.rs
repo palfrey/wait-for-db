@@ -175,11 +175,7 @@ mod test {
         assert_eq!(err.kind, DbErrorLifetime::Temporary, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
-            assert!(
-                desc.contains("could not connect to server: Connection refused"),
-                "{}",
-                desc
-            );
+            assert!(desc.contains("Connection refused"), "{}", desc);
         }
     }
 

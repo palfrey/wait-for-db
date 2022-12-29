@@ -10,7 +10,6 @@ ENV OPENSSL_LIB_DIR=/usr/lib
 ENV OPENSSL_INCLUDE_DIR=/usr/include
 ADD . ./
 RUN cargo build --release --target=x86_64-unknown-linux-musl
-RUN strip ./target/x86_64-unknown-linux-musl/release/wait_for_db
 RUN file ./target/x86_64-unknown-linux-musl/release/wait_for_db
 RUN ls -lh ./target/x86_64-unknown-linux-musl/release/wait_for_db
 

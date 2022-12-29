@@ -17,7 +17,7 @@ Options
 -------
 * `-m/--mode`: `postgres` or `odbc`
 * `-c/--connection-string`: Mode-appropriate connection string. So `postgresql://<username>:<password>@<host>:<port>` or `Driver=<path to driver>;<various ODBC options>` depending on your driver
-* `-s/--sql-query`: SQL query to run once connected. It should return at least one row, or will be regarded as failing. Default: no query, just be regarded as succeeding the moment it connects.
+* `-s/--sql-query`: SQL query to run once connected. It should return at least one row, or will be regarded as failing. Default is no query, just be regarded as succeeding the moment it connects.
 * `-p/--pause`: Pause between attempts for non-permanent failures. Default is 3 seconds
 * `-t/--timeout`: Time to wait before failing entirely. Default is wait forever.
 
@@ -62,10 +62,10 @@ docker run -p 5432 \
 
 On macOS:
 
-4. `brew install psqlodbc sqliteodbc`
-5. ``POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=`brew --prefix psqlodbc`/lib/psqlodbca.so SQLITE_DRIVER=`brew --prefix sqliteodbc`/lib/libsqlite3odbc-0.9996.dylib cargo test -- --nocapture``
+5. `brew install psqlodbc sqliteodbc`
+6. ``POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=`brew --prefix psqlodbc`/lib/psqlodbca.so SQLITE_DRIVER=`brew --prefix sqliteodbc`/lib/libsqlite3odbc-0.9996.dylib cargo test -- --nocapture``
 
 On Debian
 
-4. `sudo apt-get install odbc-postgresql libsqliteodbc`
-5. ``ODBC_SYS_STATIC_PATH=/usr/lib/x86_64-linux-gnu/ POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc-0.9996.so cargo test -- --nocapture``
+5. `sudo apt-get install odbc-postgresql libsqliteodbc`
+6. ``ODBC_SYS_STATIC_PATH=/usr/lib/x86_64-linux-gnu/ POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc-0.9996.so cargo test -- --nocapture``

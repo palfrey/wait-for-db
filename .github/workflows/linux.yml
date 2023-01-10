@@ -19,7 +19,7 @@ jobs:
           sudo pg_ctlcluster 14 main start || true
           sudo pg_lsclusters
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy

@@ -13,8 +13,8 @@ clap = { version = "2.33", default-features = false }
 exitcode = "1.1"
 postgres = {version = "0.19", default-features = false }
 regex = {version="1", default-features = false }
-postgres-native-tls = "0.5"
-native-tls = {version="0.2", default-features = false }
+rustls = {version="0.20", features=["dangerous_configuration"]}
+tokio-postgres-rustls = "0.9"
 
 [dev-dependencies]
 assert_cmd = "1.0"

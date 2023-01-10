@@ -1,10 +1,15 @@
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
-use native_tls::TlsConnector;
 use postgres::Client;
-use postgres_native_tls::MakeTlsConnector;
 use regex::Regex;
-use std::collections::HashMap;
+use rustls::client::HandshakeSignatureValid;
+use rustls::DigitallySignedStruct;
+use rustls::{
+    client::{ServerCertVerified, ServerCertVerifier},
+    Certificate, ServerName,
+};
 use std::error::Error;
+use std::sync::Arc;
+use std::{collections::HashMap, time::SystemTime};
 
 impl From<&postgres::error::DbError> for DbError {
     fn from(e: &postgres::error::DbError) -> Self {
@@ -50,12 +55,53 @@ impl From<postgres::error::Error> for DbError {
     }
 }
 
+// Dummy "just let everything through" cert verifier
+struct PassEverythingVerifier {}
+
+impl ServerCertVerifier for PassEverythingVerifier {
+    fn verify_server_cert(
+        &self,
+        _end_entity: &Certificate,
+        _intermediates: &[Certificate],
+        _server_name: &ServerName,
+        _scts: &mut dyn Iterator<Item = &[u8]>,
+        _ocsp_response: &[u8],
+        _now: SystemTime,
+    ) -> Result<ServerCertVerified, rustls::Error> {
+        Ok(ServerCertVerified::assertion())
+    }
+
+    fn verify_tls12_signature(
+        &self,
+        _message: &[u8],
+        _cert: &Certificate,
+        _dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, rustls::Error> {
+        Ok(HandshakeSignatureValid::assertion())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        _message: &[u8],
+        _cert: &Certificate,
+        _dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, rustls::Error> {
+        Ok(HandshakeSignatureValid::assertion())
+    }
+    fn request_scts(&self) -> bool {
+        false
+    }
+}
+
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
-    let tls_connector = TlsConnector::builder()
-        .danger_accept_invalid_certs(true)
-        .build()
-        .unwrap();
-    let connector = MakeTlsConnector::new(tls_connector);
+    let mut config = rustls::ClientConfig::builder()
+        .with_safe_defaults()
+        .with_root_certificates(rustls::RootCertStore::empty())
+        .with_no_client_auth();
+    config
+        .dangerous()
+        .set_certificate_verifier(Arc::new(PassEverythingVerifier {}));
+    let connector = tokio_postgres_rustls::MakeRustlsConnect::new(config);
     let mut conn = Client::connect(opts.connection_string.as_str(), connector)?;
     if let Some(ref sql_query) = opts.sql_query {
         execute_statement(&mut conn, sql_query)

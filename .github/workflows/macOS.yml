@@ -18,13 +18,12 @@ jobs:
           pg_ctl -D /usr/local/var/postgres start
           psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
           createdb -O foo foo
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - name: Tests
-        uses: actions-rs/cargo@v1
         env:
           SQLITE_DRIVER: /usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib
           POSTGRES_DRIVER: /usr/local/opt/psqlodbc/lib/psqlodbca.so
@@ -33,14 +32,9 @@ jobs:
           POSTGRES_USERNAME: foo
           POSTGRES_PASSWORD: bar
           RUST_BACKTRACE: 1          
-        with:
-          command: test
-          args: -- --nocapture
+        run: cargo test -- --nocapture
       - name: Build release
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+        run: cargo build --release
       - run: |
           otool -L target/release/wait_for_db
           if otool -L target/release/wait_for_db | grep -q /usr/local; then

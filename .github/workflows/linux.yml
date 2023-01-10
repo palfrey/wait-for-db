@@ -20,10 +20,8 @@ jobs:
           sudo pg_lsclusters
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - name: Check formatting

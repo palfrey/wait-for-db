@@ -19,7 +19,7 @@ jobs:
           psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
           createdb -O foo foo
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
       - uses: Swatinem/rust-cache@v2

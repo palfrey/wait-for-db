@@ -1,5 +1,6 @@
 use clap::{App, Arg};
 use odbc_api::handles::Record;
+use url::ParseError;
 
 #[derive(PartialEq)]
 pub enum DbMode {
@@ -130,6 +131,7 @@ pub enum DbErrorLifetime {
 pub enum DbErrorType {
     OdbcError { error: Record },
     PostgresError { error: Box<dyn std::error::Error> },
+    UrlError { error: ParseError },
 }
 
 #[derive(Debug)]

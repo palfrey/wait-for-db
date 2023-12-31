@@ -1,15 +1,13 @@
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
+use log::warn;
 use postgres::Client;
 use regex::Regex;
-use rustls::client::HandshakeSignatureValid;
-use rustls::DigitallySignedStruct;
 use rustls::{
-    client::{ServerCertVerified, ServerCertVerifier},
-    Certificate, ServerName,
+    client::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+    Certificate, DigitallySignedStruct, ServerName,
 };
-use std::error::Error;
-use std::sync::Arc;
-use std::{collections::HashMap, time::SystemTime};
+use std::{collections::HashMap, error::Error, sync::Arc, time::SystemTime};
+use url::{ParseError, Url};
 
 impl From<&postgres::error::DbError> for DbError {
     fn from(e: &postgres::error::DbError) -> Self {
@@ -55,6 +53,15 @@ impl From<postgres::error::Error> for DbError {
     }
 }
 
+impl From<ParseError> for DbError {
+    fn from(e: ParseError) -> Self {
+        DbError {
+            kind: DbErrorLifetime::Permanent,
+            error: DbErrorType::UrlError { error: e },
+        }
+    }
+}
+
 // Dummy "just let everything through" cert verifier
 struct PassEverythingVerifier {}
 
@@ -91,6 +98,19 @@ impl ServerCertVerifier for PassEverythingVerifier {
     fn request_scts(&self) -> bool {
         false
     }
+}
+
+pub fn rewrite_connection_string(opts: &mut Opts) -> std::result::Result<(), DbError> {
+    let parsed = Url::parse(&opts.connection_string)?;
+    // these are the ones accepted by tokio_postgres
+    if !vec!["postgres", "postgresql"].contains(&parsed.scheme()) {
+        warn!(
+            "Non-standard scheme ({}), but we assume that it's a Postgres Connection URL",
+            parsed.scheme()
+        );
+        opts.connection_string = opts.connection_string.replace(parsed.scheme(), "postgres");
+    }
+    Ok(())
 }
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
@@ -167,6 +187,28 @@ mod test {
         let err = connect(&Opts::new().connection_string("postgresql://test:test@localhost:port"))
             .unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
+    }
+
+    fn connect_with_rewrite(
+        connection_string: &str,
+    ) -> Result<Vec<HashMap<String, String>>, DbError> {
+        let mut opts = Opts::new().connection_string(connection_string);
+        rewrite_connection_string(&mut opts).unwrap();
+        connect(&opts)
+    }
+
+    #[test]
+    fn test_postgres_with_cockroach_url() {
+        let err = connect_with_rewrite("cockroach://test:test@localhost:26257").unwrap_err();
+        assert_eq!(err.kind, DbErrorLifetime::Temporary, "{:?}", err);
+    }
+
+    #[test]
+    fn test_postgres_with_sqlalchemy_url() {
+        let _ = env_logger::try_init();
+        let err = connect_with_rewrite("postgresql+psycopg://user:password@localhost:1234/dbname")
+            .unwrap_err();
+        assert_eq!(err.kind, DbErrorLifetime::Temporary, "{:?}", err);
     }
 
     #[test]

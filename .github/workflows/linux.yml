@@ -19,7 +19,7 @@ jobs:
           sudo pg_ctlcluster 14 main start || true
           sudo pg_lsclusters
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -53,7 +53,7 @@ jobs:
             build_host: aarch64-unknown-linux-musl
             build_arch: arm64
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/cache@v3
         with:
           path: |
@@ -62,7 +62,9 @@ jobs:
             buildx-${{ matrix.build_host }}-${{hashFiles('Dockerfile')}}
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: ${{ matrix.build_platform }}
       - name: Docker build
         run: |
           docker buildx build --platform ${{ matrix.build_platform }} --build-arg HOST=${{ matrix.build_host }} --tag wait_for_db:latest --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max --output=type=docker .

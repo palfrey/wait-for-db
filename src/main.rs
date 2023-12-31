@@ -8,7 +8,7 @@ use wait_for_db::odbc;
 use wait_for_db::pg;
 
 fn main() {
-    let opt = common::parse_args();
+    let mut opt = common::parse_args();
     Builder::new()
         .parse_filters(&env::var("WAIT_DB_LOG").unwrap_or_else(|_| "odbc=off".to_string()))
         .init();
@@ -16,6 +16,10 @@ fn main() {
     if opt.pause_seconds == 0 {
         println!("Pause between checks should be at least 1 second");
         std::process::exit(exitcode::USAGE);
+    }
+
+    if opt.mode == common::DbMode::Postgres {
+        pg::rewrite_connection_string(&mut opt).unwrap();
     }
 
     let timeout = opt.timeout_seconds.map(Duration::from_secs);

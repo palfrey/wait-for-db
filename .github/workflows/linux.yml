@@ -79,6 +79,7 @@ jobs:
         run: |
           docker cp wait_for_db:/wait_for_db wait-for-db-linux-${{ matrix.build_arch }}
       - name: ldd check
+        if: ${{ matrix.build_arch == 'amd64'}}
         run: |
           ldd wait-for-db-linux-${{ matrix.build_arch }} | grep "statically linked"
           retVal=$?

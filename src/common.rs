@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::Arg;
 use odbc_api::handles::Record;
 use url::ParseError;
 
@@ -28,66 +28,64 @@ pub struct Opts {
 }
 
 pub fn parse_args() -> Opts {
-    let matches = App::new("wait-for-db")
+    let matches = clap::Command::new("wait-for-db")
         .version(clap::crate_version!())
         .arg(
-            Arg::with_name("mode")
-                .short("m")
+            Arg::new("mode")
+                .short('m')
                 .long("mode")
                 .required(true)
-                .takes_value(true)
-                .possible_values(&["odbc", "postgres"])
+                .value_parser(["odbc", "postgres"])
                 .help("Database mode"),
         )
         .arg(
-            Arg::with_name("connection-string")
-                .short("c")
+            Arg::new("connection-string")
+                .short('c')
                 .long("connection-string")
                 .required(true)
-                .takes_value(true)
+                .value_parser(clap::builder::NonEmptyStringValueParser::new())
                 .help("Connection string"),
         )
         .arg(
-            Arg::with_name("sql-query")
-                .short("s")
+            Arg::new("sql-query")
+                .short('s')
                 .long("sql-query")
-                .takes_value(true)
+                .value_parser(clap::builder::NonEmptyStringValueParser::new())
                 .help("SQL query that should return at least one row (default: no querying)"),
         )
         .arg(
-            Arg::with_name("timeout")
-                .short("t")
+            Arg::new("timeout")
+                .short('t')
                 .long("timeout")
-                .takes_value(true)
+                .value_parser(clap::value_parser!(u64))
                 .help("Timeout in seconds (default: wait forever)"),
         )
         .arg(
-            Arg::with_name("quiet")
-                .short("q")
+            Arg::new("quiet")
+                .short('q')
                 .long("quiet")
+                .action(clap::ArgAction::SetTrue)
                 .help("Quiet mode"),
+
         )
         .arg(
-            Arg::with_name("pause")
-                .short("p")
+            Arg::new("pause")
+                .short('p')
                 .long("pause")
-                .takes_value(true)
+                .value_parser(clap::value_parser!(u64))
                 .help("Pause between checks (seconds)")
                 .default_value("3"),
         )
         .get_matches();
     Opts {
-        mode: DbMode::from_str(matches.value_of("mode").unwrap()),
-        connection_string: matches.value_of("connection-string").unwrap().to_string(),
-        sql_query: matches.value_of("sql-query").map(|s| s.to_string()),
+        mode: DbMode::from_str(matches.get_one::<String>("mode").unwrap()),
+        connection_string: matches.get_one::<String>("connection-string").unwrap().to_string(),
+        sql_query: matches.get_one::<String>("sql-query").cloned(),
         timeout_seconds: matches
-            .value_of("timeout")
-            .and_then(|s| s.parse::<u64>().ok()),
-        quiet: matches.is_present("quiet"),
+            .get_one::<u64>("timeout").copied(),
+        quiet: matches.contains_id("quiet"),
         pause_seconds: matches
-            .value_of("pause")
-            .and_then(|s| s.parse::<u64>().ok())
-            .unwrap(),
+        .get_one::<u64>("pause").copied().unwrap()
     }
 }
 

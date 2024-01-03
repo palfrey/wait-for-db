@@ -3,3 +3,4 @@ test.db
 server.*
 privkey.pem
 *.jpg
+wait-for-db-linux*

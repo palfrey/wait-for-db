@@ -103,7 +103,7 @@ impl ServerCertVerifier for PassEverythingVerifier {
 pub fn rewrite_connection_string(opts: &mut Opts) -> std::result::Result<(), DbError> {
     let parsed = Url::parse(&opts.connection_string)?;
     // these are the ones accepted by tokio_postgres
-    if !vec!["postgres", "postgresql"].contains(&parsed.scheme()) {
+    if !["postgres", "postgresql"].contains(&parsed.scheme()) {
         warn!(
             "Non-standard scheme ({}), but we assume that it's a Postgres Connection URL",
             parsed.scheme()

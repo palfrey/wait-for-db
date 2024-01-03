@@ -46,8 +46,8 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
 
 const BATCH_SIZE: u32 = 100000;
 
-fn execute_statement<'env>(
-    conn: &Connection<'env>,
+fn execute_statement(
+    conn: &Connection,
     sql_query: &str,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let mut results: Vec<HashMap<String, String>> = Vec::new();

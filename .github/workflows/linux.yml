@@ -27,7 +27,7 @@ jobs:
       - name: Check formatting
         run: cargo fmt -- --check
       - name: Clippy
-        run: cargo clippy
+        run: cargo clippy -- -D warnings 
       - name: Build and test
         env:
           ODBC_SYS_STATIC_PATH: /usr/lib/x86_64-linux-gnu/

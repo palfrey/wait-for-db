@@ -66,7 +66,6 @@ pub fn parse_args() -> Opts {
                 .long("quiet")
                 .action(clap::ArgAction::SetTrue)
                 .help("Quiet mode"),
-
         )
         .arg(
             Arg::new("pause")
@@ -79,13 +78,14 @@ pub fn parse_args() -> Opts {
         .get_matches();
     Opts {
         mode: DbMode::from_str(matches.get_one::<String>("mode").unwrap()),
-        connection_string: matches.get_one::<String>("connection-string").unwrap().to_string(),
+        connection_string: matches
+            .get_one::<String>("connection-string")
+            .unwrap()
+            .to_string(),
         sql_query: matches.get_one::<String>("sql-query").cloned(),
-        timeout_seconds: matches
-            .get_one::<u64>("timeout").copied(),
+        timeout_seconds: matches.get_one::<u64>("timeout").copied(),
         quiet: matches.contains_id("quiet"),
-        pause_seconds: matches
-        .get_one::<u64>("pause").copied().unwrap()
+        pause_seconds: matches.get_one::<u64>("pause").copied().unwrap(),
     }
 }
 

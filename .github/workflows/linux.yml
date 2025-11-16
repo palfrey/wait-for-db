@@ -13,7 +13,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          DEBIAN_FRONTEND="noninteractive" sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.12-1build2 libodbc2=2.3.12-1build2 libodbcinst2=2.3.12-1build2 odbcinst=2.3.12-1build2 libodbccr2=2.3.12-1build2 odbc-postgresql libsqliteodbc
+          DEBIAN_FRONTEND="noninteractive" sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.12-1build2 libodbc2=2.3.12-1build2 libodbcinst2=2.3.12-1build2 odbcinst=2.3.12-1build2 libodbccr2=2.3.12-1build2 odbc-postgresql libsqliteodbc libltdl-dev
 
           sudo pg_ctlcluster 16 main start || true
           sudo pg_lsclusters

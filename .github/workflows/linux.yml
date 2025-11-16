@@ -8,15 +8,14 @@ name: Linux
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install dependencies
         run: |
-          # 2.3.6-0.1build1 is hack workaround for Microsoft unixodbc-dev being installed, which has no static files!
           sudo apt-get update
-          DEBIAN_FRONTEND="noninteractive" sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.6-0.1build1 libodbc1=2.3.6-0.1build1 odbcinst1debian2=2.3.6-0.1build1 odbcinst=2.3.6-0.1build1 odbc-postgresql libsqliteodbc
+          DEBIAN_FRONTEND="noninteractive" sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev=2.3.12-1build2 libodbc2=2.3.12-1build2 libodbcinst2=2.3.12-1build2 odbcinst=2.3.12-1build2 libodbccr2=2.3.12-1build2 odbc-postgresql libsqliteodbc libltdl-dev
 
-          sudo pg_ctlcluster 14 main start || true
+          sudo pg_ctlcluster 16 main start || true
           sudo pg_lsclusters
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
       - uses: actions/checkout@v4
@@ -41,7 +40,7 @@ jobs:
         run: cargo test -- --nocapture
 
   docker:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [build_and_test]
     strategy:
       matrix:

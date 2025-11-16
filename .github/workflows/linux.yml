@@ -8,7 +8,7 @@ name: Linux
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install dependencies
         run: |
@@ -41,7 +41,7 @@ jobs:
         run: cargo test -- --nocapture
 
   docker:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [build_and_test]
     strategy:
       matrix:

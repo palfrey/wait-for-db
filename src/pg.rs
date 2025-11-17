@@ -3,8 +3,9 @@ use log::warn;
 use postgres::Client;
 use regex::Regex;
 use rustls::{
-    client::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
-    Certificate, DigitallySignedStruct, ServerName,
+    client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+    pki_types::{CertificateDer, ServerName, UnixTime},
+    DigitallySignedStruct, SignatureScheme,
 };
 use std::{collections::HashMap, error::Error, sync::Arc, time::SystemTime};
 use url::{ParseError, Url};
@@ -63,17 +64,17 @@ impl From<ParseError> for DbError {
 }
 
 // Dummy "just let everything through" cert verifier
+#[derive(Debug)]
 struct PassEverythingVerifier {}
 
 impl ServerCertVerifier for PassEverythingVerifier {
     fn verify_server_cert(
         &self,
-        _end_entity: &Certificate,
-        _intermediates: &[Certificate],
-        _server_name: &ServerName,
-        _scts: &mut dyn Iterator<Item = &[u8]>,
+        _end_entity: &CertificateDer<'_>,
+        _intermediates: &[CertificateDer<'_>],
+        _server_name: &ServerName<'_>,
         _ocsp_response: &[u8],
-        _now: SystemTime,
+        _now: UnixTime,
     ) -> Result<ServerCertVerified, rustls::Error> {
         Ok(ServerCertVerified::assertion())
     }
@@ -81,7 +82,7 @@ impl ServerCertVerifier for PassEverythingVerifier {
     fn verify_tls12_signature(
         &self,
         _message: &[u8],
-        _cert: &Certificate,
+        _cert: &CertificateDer<'_>,
         _dss: &DigitallySignedStruct,
     ) -> Result<HandshakeSignatureValid, rustls::Error> {
         Ok(HandshakeSignatureValid::assertion())
@@ -90,13 +91,28 @@ impl ServerCertVerifier for PassEverythingVerifier {
     fn verify_tls13_signature(
         &self,
         _message: &[u8],
-        _cert: &Certificate,
+        _cert: &CertificateDer<'_>,
         _dss: &DigitallySignedStruct,
     ) -> Result<HandshakeSignatureValid, rustls::Error> {
         Ok(HandshakeSignatureValid::assertion())
     }
-    fn request_scts(&self) -> bool {
-        false
+
+    fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
+        vec![
+            SignatureScheme::RSA_PKCS1_SHA1,
+            SignatureScheme::ECDSA_SHA1_Legacy,
+            SignatureScheme::RSA_PKCS1_SHA256,
+            SignatureScheme::ECDSA_NISTP256_SHA256,
+            SignatureScheme::RSA_PKCS1_SHA384,
+            SignatureScheme::ECDSA_NISTP384_SHA384,
+            SignatureScheme::RSA_PKCS1_SHA512,
+            SignatureScheme::ECDSA_NISTP521_SHA512,
+            SignatureScheme::RSA_PSS_SHA256,
+            SignatureScheme::RSA_PSS_SHA384,
+            SignatureScheme::RSA_PSS_SHA512,
+            SignatureScheme::ED25519,
+            SignatureScheme::ED448,
+        ]
     }
 }
 
@@ -114,13 +130,10 @@ pub fn rewrite_connection_string(opts: &mut Opts) -> std::result::Result<(), DbE
 }
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
-    let mut config = rustls::ClientConfig::builder()
-        .with_safe_defaults()
-        .with_root_certificates(rustls::RootCertStore::empty())
-        .with_no_client_auth();
-    config
+    let config = rustls::ClientConfig::builder()
         .dangerous()
-        .set_certificate_verifier(Arc::new(PassEverythingVerifier {}));
+        .with_custom_certificate_verifier(Arc::new(PassEverythingVerifier {}))
+        .with_no_client_auth();
     let connector = tokio_postgres_rustls::MakeRustlsConnect::new(config);
     let mut conn = Client::connect(opts.connection_string.as_str(), connector)?;
     if let Some(ref sql_query) = opts.sql_query {

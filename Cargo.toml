@@ -13,8 +13,8 @@ clap = { version = "4", features = ["std", "cargo", "help", "usage"], default-fe
 exitcode = "1.1"
 postgres = {version = "0.19", default-features = false }
 regex = {version="1", default-features = false }
-rustls = {version="0.21", features=["dangerous_configuration"]}
-tokio-postgres-rustls = "0.10"
+rustls = {version="0.23", features=[]}
+tokio-postgres-rustls = "0.13"
 url = "2"
 log = "0.4"
 

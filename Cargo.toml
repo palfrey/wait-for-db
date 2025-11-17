@@ -20,7 +20,7 @@ log = "0.4"
 
 [dev-dependencies]
 assert_cmd = "1.0"
-predicates = "1"
+predicates = "3"
 
 # Settings here are because we care more about size than speed
 # Based on https://github.com/johnthagen/min-sized-rust

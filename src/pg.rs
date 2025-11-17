@@ -7,7 +7,7 @@ use rustls::{
     pki_types::{CertificateDer, ServerName, UnixTime},
     DigitallySignedStruct, SignatureScheme,
 };
-use std::{collections::HashMap, error::Error, sync::Arc, time::SystemTime};
+use std::{collections::HashMap, error::Error, sync::Arc};
 use url::{ParseError, Url};
 
 impl From<&postgres::error::DbError> for DbError {

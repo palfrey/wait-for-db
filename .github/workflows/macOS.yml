@@ -18,7 +18,7 @@ jobs:
           pg_ctl -D /usr/local/var/postgres start
           psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
           createdb -O foo foo
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable

@@ -1,5 +1,6 @@
 use odbc_api::{
-    ColumnDescription, Connection, ConnectionOptions, Cursor, DataType, Environment, Nullability, ResultSetMetadata, buffers::TextRowSet, Error
+    buffers::TextRowSet, ColumnDescription, Connection, ConnectionOptions, Cursor, DataType,
+    Environment, Error, Nullability, ResultSetMetadata,
 };
 
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
@@ -7,7 +8,11 @@ use std::collections::HashMap;
 
 impl From<Error> for DbError {
     fn from(item: Error) -> Self {
-        if let Error::Diagnostics{record, function: _} = item {
+        if let Error::Diagnostics {
+            record,
+            function: _,
+        } = item
+        {
             let state = str::from_utf8(&record.state.0)
                 .unwrap()
                 .trim_matches(char::from(0))
@@ -31,10 +36,9 @@ impl From<Error> for DbError {
 }
 
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
-    // We know this is going to be the only ODBC environment in the entire process, so this is
-    // safe.
-    let env =  Environment::new()?;
-    let conn = env.connect_with_connection_string(&opts.connection_string, ConnectionOptions::default())?;
+    let env = Environment::new()?;
+    let conn =
+        env.connect_with_connection_string(&opts.connection_string, ConnectionOptions::default())?;
     if let Some(ref sql_query) = opts.sql_query {
         execute_statement(&conn, sql_query)
     } else {

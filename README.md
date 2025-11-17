@@ -68,4 +68,4 @@ On macOS:
 On Debian
 
 5. `sudo apt-get install odbc-postgresql libsqliteodbc`
-6. ``ODBC_SYS_STATIC_PATH=/usr/lib/x86_64-linux-gnu/ POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc-0.9996.so cargo test -- --nocapture``
+6. ``ODBC_SYS_STATIC_PATH=/usr/lib/x86_64-linux-gnu/ POSTGRES_SERVER=localhost POSTGRES_USERNAME=postgres POSTGRES_PASSWORD= RUST_BACKTRACE=1 POSTGRES_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/psqlodbca.so SQLITE_DRIVER=/usr/lib/x86_64-linux-gnu/odbc/libsqlite3odbc.so cargo test -- --nocapture``

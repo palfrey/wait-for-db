@@ -1,6 +1,5 @@
 use odbc_api::{
-    buffers::TextRowSet, handles::Error, ColumnDescription, Connection, Cursor, DataType,
-    Environment, Nullability, U16String,
+    ColumnDescription, Connection, ConnectionOptions, Cursor, DataType, Environment, Nullability, ResultSetMetadata, buffers::TextRowSet, Error
 };
 
 use crate::common::{DbError, DbErrorLifetime, DbErrorType, Opts};
@@ -8,9 +7,8 @@ use std::collections::HashMap;
 
 impl From<Error> for DbError {
     fn from(item: Error) -> Self {
-        if let Error::Diagnostics(record) = item {
-            let state = U16String::from_vec(record.state)
-                .to_string()
+        if let Error::Diagnostics{record, function: _} = item {
+            let state = str::from_utf8(&record.state.0)
                 .unwrap()
                 .trim_matches(char::from(0))
                 .to_string();
@@ -35,8 +33,8 @@ impl From<Error> for DbError {
 pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>, DbError> {
     // We know this is going to be the only ODBC environment in the entire process, so this is
     // safe.
-    let env = unsafe { Environment::new() }?;
-    let conn = env.connect_with_connection_string(&opts.connection_string)?;
+    let env =  Environment::new()?;
+    let conn = env.connect_with_connection_string(&opts.connection_string, ConnectionOptions::default())?;
     if let Some(ref sql_query) = opts.sql_query {
         execute_statement(&conn, sql_query)
     } else {
@@ -44,15 +42,15 @@ pub fn connect(opts: &Opts) -> std::result::Result<Vec<HashMap<String, String>>,
     }
 }
 
-const BATCH_SIZE: u32 = 100000;
+const BATCH_SIZE: usize = 100000;
 
 fn execute_statement(
     conn: &Connection,
     sql_query: &str,
 ) -> Result<Vec<HashMap<String, String>>, DbError> {
     let mut results: Vec<HashMap<String, String>> = Vec::new();
-    match conn.execute(sql_query, ())? {
-        Some(cursor) => {
+    match conn.execute(sql_query, (), None)? {
+        Some(mut cursor) => {
             let col_count = cursor.num_result_cols()? as u16;
             let mut cols: HashMap<usize, String> = HashMap::new();
             for i in 1..(col_count + 1) {
@@ -64,7 +62,7 @@ fn execute_statement(
                 cursor.describe_col(i, &mut cd)?;
                 cols.insert((i - 1).into(), cd.name_to_string().unwrap());
             }
-            let mut buffers = TextRowSet::for_cursor(BATCH_SIZE, &cursor, None)?;
+            let mut buffers = TextRowSet::for_cursor(BATCH_SIZE, &mut cursor, None)?;
             let mut row_set_cursor = cursor.bind_buffer(&mut buffers)?;
             while let Some(batch) = row_set_cursor.fetch()? {
                 // Within a batch, iterate over every row

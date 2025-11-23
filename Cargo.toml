@@ -6,21 +6,21 @@ edition = "2018"
 resolver = "2"
 
 [dependencies]
-odbc-api = "20.0"
-odbc-sys = { version= "0.17", features=["static"] }
-env_logger = "0.10.0"
-clap = { version = "4", features = ["std", "cargo", "help", "usage"], default-features = false }
-exitcode = "1.1"
+odbc-api = {version="20.0", default-features = false, features = ["odbc_version_3_80"] }
+odbc-sys = { version= "0.17", features=["static"], default-features = false}
+env_logger = {version="0.10.0", default-features = false }
+clap = { version = "4.5.44", features = ["std", "cargo", "help", "usage"], default-features = false }
+exitcode = {version="1.1", default-features = false }
 postgres = {version = "0.19", default-features = false }
 regex = {version="1", default-features = false }
-rustls = {version="0.23", features=[]}
-tokio-postgres-rustls = "0.13"
-url = "2"
-log = "0.4"
+rustls = {version="0.23", default-features = false, features = ["aws-lc-rs"]}
+tokio-postgres-rustls = {version="0.13", default-features = false}
+url = {version="2", default-features = false }
+log = {version="0.4", default-features = false }
 
 [dev-dependencies]
-assert_cmd = "2.0"
-predicates = "3"
+assert_cmd = {version="2.0", default-features = false }
+predicates = {version="3", default-features = false }
 
 # Settings here are because we care more about size than speed
 # Based on https://github.com/johnthagen/min-sized-rust

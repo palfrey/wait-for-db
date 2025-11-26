@@ -7,7 +7,7 @@ resolver = "2"
 
 [dependencies]
 odbc-api = {version="20.1", default-features = false }
-odbc-sys = { version= "0.17", features=["static"], default-features = false}
+odbc-sys = { version= "0.27", features=["static", "static_ltdl"], default-features = false}
 env_logger = {version="0.10.0", default-features = false }
 clap = { version = "4.5.44", features = ["std", "cargo", "help", "usage"], default-features = false }
 exitcode = {version="1.1", default-features = false }

@@ -800,16 +800,10 @@ checksum = "783bf33566037e27f47dbb0ca9c0a0562e80e35ee2a8cf35b86048905c36076a"
 dependencies = [
  "atoi",
  "log",
- "odbc-sys 0.27.4",
+ "odbc-sys",
  "thiserror",
  "widestring",
 ]
-
-[[package]]
-name = "odbc-sys"
-version = "0.17.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85587df816f3873030065fd459457acab61a2f5085eed680365ca83079e9875e"
 
 [[package]]
 name = "odbc-sys"
@@ -1555,7 +1549,7 @@ dependencies = [
  "exitcode",
  "log",
  "odbc-api",
- "odbc-sys 0.17.2",
+ "odbc-sys",
  "postgres",
  "predicates 3.1.3",
  "regex",

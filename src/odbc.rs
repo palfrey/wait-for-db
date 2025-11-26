@@ -126,7 +126,7 @@ mod test {
         if let DbErrorType::OdbcError { error } = err.error {
             let desc = format!("{}", error);
             assert!(
-                desc.contains("Can't open lib 'foo' : file not found"),
+                desc.contains("Can't open lib 'foo' : foo: cannot open shared object file: No such file or directory"),
                 "{}",
                 desc
             );

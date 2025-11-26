@@ -6,7 +6,7 @@ edition = "2018"
 resolver = "2"
 
 [dependencies]
-odbc-api = {version="20.0", default-features = false, features = ["odbc_version_3_80"] }
+odbc-api = {version="20.1", default-features = false }
 odbc-sys = { version= "0.17", features=["static"], default-features = false}
 env_logger = {version="0.10.0", default-features = false }
 clap = { version = "4.5.44", features = ["std", "cargo", "help", "usage"], default-features = false }

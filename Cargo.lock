@@ -794,28 +794,25 @@ dependencies = [
 
 [[package]]
 name = "odbc-api"
-version = "20.0.0"
+version = "20.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9e61cabf8e6b5832a65b8f13b1205ddce4c2a39c0a3f1a7205ccc6e0b466aad"
+checksum = "783bf33566037e27f47dbb0ca9c0a0562e80e35ee2a8cf35b86048905c36076a"
 dependencies = [
  "atoi",
  "log",
- "odbc-sys 0.27.4",
+ "odbc-sys",
  "thiserror",
  "widestring",
 ]
 
 [[package]]
 name = "odbc-sys"
-version = "0.17.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85587df816f3873030065fd459457acab61a2f5085eed680365ca83079e9875e"
-
-[[package]]
-name = "odbc-sys"
 version = "0.27.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1896e52e97c2f0cf997cc627380f1af1ecb3f6c29ce6175047cd38adaadb46f5"
+dependencies = [
+ "unix-odbc",
+]
 
 [[package]]
 name = "once_cell"
@@ -1508,6 +1505,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7fe0bb3479651439c9112f72b6c505038574c9fbb575ed1bf3b797fa39dd564"
 
 [[package]]
+name = "unix-odbc"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8579f2e2aaba57c09f10990cf9ab50eef8c0155820ed8a72d962c1c05af4a8a"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "untrusted"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1555,7 +1561,7 @@ dependencies = [
  "exitcode",
  "log",
  "odbc-api",
- "odbc-sys 0.17.2",
+ "odbc-sys",
  "postgres",
  "predicates 3.1.3",
  "regex",

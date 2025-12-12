@@ -88,7 +88,7 @@ jobs:
             exit 1
           fi
       - name: Archive binary
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wait-for-db-linux-${{ matrix.build_arch }}
           path: wait-for-db-linux-${{ matrix.build_arch }}

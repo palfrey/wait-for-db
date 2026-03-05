@@ -61,7 +61,7 @@ jobs:
             buildx-${{ matrix.build_host }}-${{hashFiles('Dockerfile')}}
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           platforms: ${{ matrix.build_platform }}
       - name: Setup Qemu

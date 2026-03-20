@@ -8,16 +8,19 @@ name: macOS
 
 jobs:
   build_and_test:
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
+      - uses: ikalnytskyi/action-setup-postgres@v8
+        with:
+          username: foo
+          password: bar
+          database: foo
+          port: 5432
+          postgres-version: "14"
+          ssl: true
       - name: Install Homebrew dependencies
         run: |
           env HOMEBREW_NO_AUTO_UPDATE=1 brew install psqlodbc sqliteodbc postgresql
-      - name: Create test db/user
-        run: |
-          pg_ctl -D /usr/local/var/postgres start
-          psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
-          createdb -O foo foo
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:

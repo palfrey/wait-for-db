@@ -30,8 +30,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Tests
         env:
-          SQLITE_DRIVER: /usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib
-          POSTGRES_DRIVER: /usr/local/opt/psqlodbc/lib/psqlodbca.so
+          SQLITE_DRIVER: /opt/homebrew/opt/sqliteodbc/lib/libsqlite3odbc.dylib
+          POSTGRES_DRIVER: /opt/homebrew/opt/psqlodbc/lib/psqlodbca.so
           POSTGRES_SERVER: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USERNAME: foo

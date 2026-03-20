@@ -8,16 +8,21 @@ name: macOS
 
 jobs:
   build_and_test:
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
+      - uses: ikalnytskyi/action-setup-postgres@v8
+        with:
+          username: foo
+          password: bar
+          database: foo
+          port: 5432
+          postgres-version: "18"
+          ssl: true
       - name: Install Homebrew dependencies
         run: |
-          env HOMEBREW_NO_AUTO_UPDATE=1 brew install psqlodbc sqliteodbc postgresql
-      - name: Create test db/user
-        run: |
-          pg_ctl -D /usr/local/var/postgres start
-          psql postgres -c "CREATE USER foo WITH PASSWORD 'bar';"
-          createdb -O foo foo
+          env HOMEBREW_NO_AUTO_UPDATE=1 brew install psqlodbc sqliteodbc
+          brew --prefix psqlodbc
+          brew --prefix sqliteodbc
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -25,8 +30,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Tests
         env:
-          SQLITE_DRIVER: /usr/local/opt/sqliteodbc/lib/libsqlite3odbc.dylib
-          POSTGRES_DRIVER: /usr/local/opt/psqlodbc/lib/psqlodbca.so
+          SQLITE_DRIVER: /opt/homebrew/opt/sqliteodbc/lib/libsqlite3odbc.dylib
+          POSTGRES_DRIVER: /opt/homebrew/opt/psqlodbc/lib/psqlodbca.so
           POSTGRES_SERVER: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USERNAME: foo

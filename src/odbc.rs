@@ -124,12 +124,24 @@ mod test {
         let err = connect(&Opts::new().connection_string("Driver=foo;Server=blah;")).unwrap_err();
         assert_eq!(err.kind, DbErrorLifetime::Permanent, "{:?}", err);
         if let DbErrorType::OdbcError { error } = err.error {
-            let desc = format!("{}", error);
-            assert!(
-                desc.contains("Can't open lib 'foo' : foo: cannot open shared object file: No such file or directory"),
-                "{}",
-                desc
-            );
+            let desc = format!("{error}");
+            if cfg!(target_os = "linux") {
+                assert!(
+                    desc.contains("Can't open lib 'foo' : foo: cannot open shared object file: No such file or directory"),
+                    "{}",
+                    desc,
+                );
+            } else if cfg!(target_os = "macos") {
+                assert!(
+                    desc.contains(
+                        "Can't open lib 'foo' : dlopen(foo, 0x0009): tried: 'foo' (no such file)"
+                    ),
+                    "{}",
+                    desc
+                );
+            } else {
+                unimplemented!("Unsupported system!");
+            }
         }
     }
 

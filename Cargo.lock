@@ -673,9 +673,9 @@ dependencies = [
 
 [[package]]
 name = "odbc-api"
-version = "24.0.0"
+version = "25.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53c3bb824cd96ae8d61a749e9572060c6ba674a08338ed221e87c412e2bb6d48"
+checksum = "b9144219b357fb103b928a1ef1b4e466a84b8f52aa9f5d5e538c409e1ffb9d26"
 dependencies = [
  "atoi",
  "log",

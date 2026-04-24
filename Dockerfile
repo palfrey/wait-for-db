@@ -1,4 +1,4 @@
-FROM alpine:3.19 as builder
+FROM alpine:3.19 AS builder
 ARG HOST=x86_64-unknown-linux-musl
 
 RUN apk add --no-cache rustup gcc file unixodbc-dev unixodbc-static libltdl-static musl-dev

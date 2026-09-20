@@ -15,7 +15,7 @@ jobs:
           sudo apt-get update
           DEBIAN_FRONTEND="noninteractive" sudo apt-get install -y --allow-downgrades --no-install-recommends unixodbc-dev libodbc2 libodbcinst2 libodbccr2 odbc-postgresql libsqliteodbc libltdl-dev
 
-          sudo pg_ctlcluster 16 main start || true
+          sudo pg_ctlcluster 18 main start || true
           sudo pg_lsclusters
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
       - uses: actions/checkout@v7

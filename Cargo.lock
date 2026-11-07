@@ -717,13 +717,13 @@ dependencies = [
 
 [[package]]
 name = "odbc-api"
-version = "29.0.0"
+version = "30.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efbf786f321712df749f34b99279334e45383b50d40c173ba5597894c21d1d34"
+checksum = "a8d667cd254f7e711f3faf9374bd4cb4f44959b538d930ed3b92cd65a03ca418"
 dependencies = [
  "atoi",
  "log",
- "odbc-sys 0.31.0",
+ "odbc-sys 0.31.3",
  "thiserror",
  "widestring",
 ]
@@ -739,9 +739,9 @@ dependencies = [
 
 [[package]]
 name = "odbc-sys"
-version = "0.31.0"
+version = "0.31.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "245cb4fe8236df4fd352ba96075d754233c6509d654d9f1c1482158b7d6c083d"
+checksum = "19e3a0f2c6531470f498c7cc5054f6b2a5922b5e82a5151065a257c1eb5ee1cd"
 
 [[package]]
 name = "once_cell"
